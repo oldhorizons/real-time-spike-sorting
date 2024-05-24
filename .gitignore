@@ -1,0 +1,32 @@
+# Ignore LaTeX auto-generated files (Gibbons, 2024)
+*.fls
+*.aux
+*.fdb_latexmk
+*.log
+*.synctex.gz
+*.bbl
+*.blg
+*.out
+*.xml
+*.toc
+*-blx.bib
+
+#ignore reference pdfs
+#References/Sources
+
+#ignore repos pulled from elsewhere
+Repos/
+
+#ignore junk folders
+Admin/
+Data/
+Documents/
+References/
+Data_*
+
+#ignore repo I can't bloody get rid of until I'm at my home PC lmao
+Code/Yass/
+*.env
+
+#ignore binary files
+*.bin
