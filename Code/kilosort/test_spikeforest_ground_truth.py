@@ -27,7 +27,20 @@ def load_files():
     for folder in ground_truth_folders:
         for i, suffix in enumerate(suffixes):
             path = os.path.join(base_dir, folder, folder+suffix)
-            if i == 0:
+            
+
+
+            """
+            copy format from crop data to write as binary file, 
+            figure out where num_channels is stored?? 
+            then kilosort should just work question mark??
+            theN LOOK AT OUTPUT DATA FORMAT AND AUTO VALIIDATION I LOVE YOU
+            ALSO FIX ONEDRIVE 
+            ALSO FORMAT YOUR CODE YOU GOOSE - automatically download? write documentation fuckin hell lmao
+            COMMENT
+            YOUR
+            SHIT
+            """
             
 
 
