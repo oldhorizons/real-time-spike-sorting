@@ -2,7 +2,7 @@ from kilosort.utils import download_probes
 from kilosort import run_kilosort, DEFAULT_SETTINGS
 
 #CONFIG
-setup = 1
+setup = 2
 if (setup == 1): #real data
     data_dir = 'C:/Users/miche/OneDrive/Documents/A-Uni/REIT4841/Data_Raw/JCPM4853_CROPPED_6922ms'
     n_channels = 384

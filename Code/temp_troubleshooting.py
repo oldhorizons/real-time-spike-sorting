@@ -40,13 +40,19 @@ def plot_heatmap(data, title, num_subplots = 5, ratio = 15, filename = None, sav
     else:
         plt.show()
 
-def show(data):
-    plt.imshow(data, cmap='hot') #interpolation = 'nearest'
-    plt.show()
+def show(data, length, filename = None):
+    if data.shape[0] < data.shape[1]:
+        plt.imshow(data[:,0:length], cmap="hot")
+    else:
+        plt.imshow(data[0:length], cmap='hot') #interpolation = '
+    if filename is not None:
+        plt.savefig("heatmaps/" + filename)
+    else:
+        plt.show()
 
 # show(dat2)
 
-original = np.memmap('HYBRID_JANELIA/continuous.dat')
+original = np.memmap('HYBRID_JANELIA/continuous.dat', dtype='uint32')
 o1c = original.reshape(len(original) //16,16) #C-like index ordering
 o1f = original.reshape(len(original) // 16, 16, order='F') #Fortran-like index ordering
 o2c = original.reshape(16,len(original)//16)
@@ -54,10 +60,10 @@ o2f = original.reshape(16,len(original)//16, order = 'F')
 
 (n1, ratio1) = (5, 20)
 (n2, ratio2) = (10, 40)
-save = True
+save = False
 
-print("starting")
-plot_heatmap(dat1, "control: shape (samples, channels), C-like index ordering", n1, ratio1, f"CONTROL_n{n1}r{ratio1}.png", save)
+
+
 print("finished control")
 plot_heatmap(o1c, "1C: shape (samples, channels), C-like index ordering", n2, ratio2, f"1C_scC_n{n2}r{ratio2}.png", save)
 print("finished 1C")
