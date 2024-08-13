@@ -5,6 +5,7 @@ from kilosort.utils import download_probes
 from kilosort import run_kilosort, DEFAULT_SETTINGS
 import kachery_cloud as kcl
 
+# NOTE - this file is obsolete. Keeping JUST in case but honestly I'm not expecting to ever touch it again
 # NOTE TO SELF: go to repos/spikeforest/examples/list_all_recordings.py
 # and repos/spikeforest/spikeforest/load_spikeforest_recordings.py
 # this functionality relies on the kachery cloud protocol set up for spikeforest

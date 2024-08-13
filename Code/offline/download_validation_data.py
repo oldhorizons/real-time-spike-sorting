@@ -18,5 +18,7 @@ def download_url(url, output_path):
 
 ## CROPPED DATASET
 URL = 'http://www.kilosort.org/downloads/ZFM-02370_mini.imec0.ap.bin'
+# all synthetic data
+# URL = 'https://janelia.figshare.com/ndownloader/articles/25298815/versions/1'
 
 download_url(URL, URL.split('/')[-1])

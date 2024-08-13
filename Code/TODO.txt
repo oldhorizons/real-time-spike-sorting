@@ -1,0 +1,16 @@
+! - need to do next
+
+ENVIRONMENT
+- set up proper dev environment (docker)
+! - structure codebase
+
+OFFLINE - VALIDATION
+- auto download test data - https://janelia.figshare.com/articles/dataset/Simulations_from_kilosort4_paper/25298815/1
+- auto format test data (extract and unpack using mtscomp) - https://github.com/int-brain-lab/mtscomp
+! - crop the test data and results
+! - auto run tests
+! - compare outputs
+
+KILOSORT
+! - allow for pre-training
+- set up real-time data feed
