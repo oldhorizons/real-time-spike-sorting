@@ -23,7 +23,7 @@ def do_kilosort(data_dir, n_channels, probe_name):
 
 if __name__ == "__main__":
     t = int(time.time())
-    logger = mslog.set_up_logger(logger_dir + f"/logger_{t}.txt", 'RUN_KILOSORT')
+    logger = mslog.set_up_logger(logger_dir + f"/logger_do_kilosort_{t}.txt", 'RUN_KILOSORT')
     if dataName == None:
         # run through all dict keys
         for key in setups.keys():
