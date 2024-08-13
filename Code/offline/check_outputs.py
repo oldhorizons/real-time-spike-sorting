@@ -2,6 +2,7 @@ import config
 import numpy as np
 import os
 import pandas as pd
+import mslog
 
 version = config.kilosort_version
 
@@ -39,31 +40,31 @@ def load_ground_truth(dir):
 
     
 
-# load kilosort4 output
-    data_folder = os.path.split(filename_bg)[0]
-    ks4_folder = os.path.join(data_folder, 'kilosort4/')   
-    ops = np.load(os.path.join(ks4_folder, 'ops.npy'), allow_pickle=True).item()
-    st = np.load(os.path.join(ks4_folder, 'spike_times.npy'))
-    cl = np.load(os.path.join(ks4_folder, 'spike_clusters.npy'))
-    templates = np.load(os.path.join(ks4_folder, 'templates.npy'))
-    wf_cb = ((templates**2).sum(axis=-2)**0.5).argmax(axis=1)
-    m = pd.read_csv(os.path.join(ks4_folder, 'cluster_KSLabel.tsv'), sep='\t')   
-    is_ref = m['KSLabel'].values=="good"
-    nc = np.unique(cl, return_counts=True)[1]
-    # 0.5 hz firing rate or higher
-    cinds = np.nonzero(is_ref & (nc>ops["Nbatches"]))[0]
+# # load kilosort4 output
+#     data_folder = os.path.split(filename_bg)[0]
+#     ks4_folder = os.path.join(data_folder, 'kilosort4/')   
+#     ops = np.load(os.path.join(ks4_folder, 'ops.npy'), allow_pickle=True).item()
+#     st = np.load(os.path.join(ks4_folder, 'spike_times.npy'))
+#     cl = np.load(os.path.join(ks4_folder, 'spike_clusters.npy'))
+#     templates = np.load(os.path.join(ks4_folder, 'templates.npy'))
+#     wf_cb = ((templates**2).sum(axis=-2)**0.5).argmax(axis=1)
+#     m = pd.read_csv(os.path.join(ks4_folder, 'cluster_KSLabel.tsv'), sep='\t')   
+#     is_ref = m['KSLabel'].values=="good"
+#     nc = np.unique(cl, return_counts=True)[1]
+#     # 0.5 hz firing rate or higher
+#     cinds = np.nonzero(is_ref & (nc>ops["Nbatches"]))[0]
     
-    # remove any spikes before padding window for waveform computation
-    cls = cl[st > ntw]
-    sts = st[st > ntw]
-    iref_c = np.isin(cls, cinds)
-    cls = cls[iref_c].astype("int64")
-    sts = sts[iref_c].astype("int64")
-    n_neurons = len(cinds)
-    print('n_neurons = ', len(cinds))
-    wf_cb = wf_cb[cinds]
+#     # remove any spikes before padding window for waveform computation
+#     cls = cl[st > ntw]
+#     sts = st[st > ntw]
+#     iref_c = np.isin(cls, cinds)
+#     cls = cls[iref_c].astype("int64")
+#     sts = sts[iref_c].astype("int64")
+#     n_neurons = len(cinds)
+#     print('n_neurons = ', len(cinds))
+#     wf_cb = wf_cb[cinds]
 
-    ncm = len(chan_map)
-    wfa = np.zeros((n_neurons, tw, ncm))
-    nst = np.zeros(n_neurons, "int")
-    tic = time.time()
+#     ncm = len(chan_map)
+#     wfa = np.zeros((n_neurons, tw, ncm))
+#     nst = np.zeros(n_neurons, "int")
+#     tic = time.time()
