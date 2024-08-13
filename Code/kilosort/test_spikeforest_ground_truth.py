@@ -17,11 +17,11 @@ uris = {
 }
 
 probe_names = [
-    'neuropixPhase3A_kilosortChanMap.mat',
-    'neuropixPhase3B1_kilosortChanMap.mat',
-    'neuropixPhase3B2_kilosortChanMap.mat',
-    'NP2_kilosortChanMap.mat', 
-    'Linear16x1_kilosortChanMap.mat',
+    'neuropixPhase3A_kilosortChanMap.mat', #384 channels, linear
+    'neuropixPhase3B1_kilosortChanMap.mat', #384 channels
+    'neuropixPhase3B2_kilosortChanMap.mat', #384 channels
+    'NP2_kilosortChanMap.mat',  #384 channels
+    'Linear16x1_kilosortChanMap.mat', #16 channels
     ]
 
 # base directory with ground truth datasets stored

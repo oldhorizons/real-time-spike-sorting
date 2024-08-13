@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 
+# https://janelia.figshare.com/articles/dataset/Simulations_from_kilosort4_paper/25298815/1
+
 os.chdir('C:/Users/miche/OneDrive/Documents/A-Uni/REIT4841/Data_Raw')
 dat1 = np.memmap('JCPM4853_CROPPED_6922ms/continuous.dat')
 dat2 = np.memmap('HYBRID_JANELIA/continuous.dat')
@@ -12,21 +14,27 @@ dat2 = np.memmap('HYBRID_JANELIA/continuous.dat')
 dat1 = dat1.reshape((len(dat1) // 384, 384))
 # dat2 = dat2.reshape((len(dat2) //16,16))
 
-def plot_heatmap(data, title, num_subplots = 5, ratio = 15, filename = None, save_img = False):
+def plot_heatmap(data, title, num_subplots = 1, ratio = 15, filename = None, save_img = False):
     l = data.shape[0]
+    orientation = 'vertical'
     if data.shape[0] > data.shape[1]:
+        orientation = 'horizontal'
         l = data.shape[1]
-    else:
-        # initial transpose because it's really hard to index this data otherwise
-        # also kilosort takes data in this format
-        #TODO though is this messing with anything? I'm assuming it just changes how np interprets indexes but I'm not 100%
-        data = np.transpose(data)
-    # ratio of about 1:15 channels:samples per row is good
+
     l *= ratio
-    fig, axs = plt.subplots(num_subplots)
+    match orientation:
+        case "horizontal":
+            fig, axs = plt.subplots(nrows = num_subplots)
+        case "vertical":
+            fig, axs = plt.subplots(ncols = num_subplots)
+            
     for i in range(0,num_subplots):
-        cropped = data[:][l*i:(l*i)+l]
-        cropped = np.transpose(cropped)
+        match orientation:
+            case "horizontal":
+                cropped = data[l*i:(l*i)+l]
+            case "vertical":
+                cropped = data[:,l*i:(l*i)+l]
+                
         axs[i].imshow(cropped, cmap = 'hot', interpolation='nearest')
         axs[i].set_xticklabels([])
         axs[i].set_yticklabels([])
@@ -40,17 +48,41 @@ def plot_heatmap(data, title, num_subplots = 5, ratio = 15, filename = None, sav
     else:
         plt.show()
 
-def show(data, length, filename = None):
+def show(data, length=2000, filename = None):
     if data.shape[0] < data.shape[1]:
         plt.imshow(data[:,0:length], cmap="hot")
     else:
         plt.imshow(data[0:length], cmap='hot') #interpolation = '
+    plt.title(filename)
+    plt.tight_layout()
     if filename is not None:
-        plt.savefig("heatmaps/" + filename)
+        plt.savefig("heatmaps/" + filename + ".png", dpi=500)
     else:
         plt.show()
 
 # show(dat2)
+
+
+
+def save_comparisons(filepath):
+    #NB default dtype is uint8
+    dtypes = ['uint8', 'uint16', 'uint32', 'int8', 'int16', 'int32'] #, 'float8', 'float16', 'float32'
+    orders = ['F', 'C']
+    shapes = ['sc', 'cs']
+    for dtype in dtypes:
+        original = np.memmap(filepath, dtype=dtype)
+        for order in orders:
+            for shape in shapes:
+                match shape:
+                    case 'sc':
+                        new = original.reshape(len(original)//16, 16, order=order)
+                        new = np.transpose(new)
+                    case 'cs':
+                        new = original.reshape(16, len(original)//16, order=order)
+                filename = f"{dtype}_{order}_{shape}"
+                print(filename)
+                show(new, filename=filename)
+
 
 original = np.memmap('HYBRID_JANELIA/continuous.dat', dtype='uint32')
 o1c = original.reshape(len(original) //16,16) #C-like index ordering
@@ -64,15 +96,15 @@ save = False
 
 
 
-print("finished control")
-plot_heatmap(o1c, "1C: shape (samples, channels), C-like index ordering", n2, ratio2, f"1C_scC_n{n2}r{ratio2}.png", save)
-print("finished 1C")
-plot_heatmap(o1f, "1F: shape (samples, channels), Fortran-like index ordering", n2, ratio2, f"1F_scF_n{n2}r{ratio2}.png", save)
-print("finished 1F")
-plot_heatmap(o2c, "2C: shape (channels, samples), C-like index ordering", n2, ratio2, f"2C_csC_n{n2}r{ratio2}.png", save)
-print("finished 2C")
-plot_heatmap(o2f, "2F: shape (channels, samples), Fortran-like index ordering", n2, ratio2, f"2F_csF_n{n2}r{ratio2}.png", save)
-print("finished 2F")
+# print("finished control")
+# plot_heatmap(o1c, "1C: shape (samples, channels), C-like index ordering", n2, ratio2, f"1C_scC_n{n2}r{ratio2}.png", save)
+# print("finished 1C")
+# plot_heatmap(o1f, "1F: shape (samples, channels), Fortran-like index ordering", n2, ratio2, f"1F_scF_n{n2}r{ratio2}.png", save)
+# print("finished 1F")
+# plot_heatmap(o2c, "2C: shape (channels, samples), C-like index ordering", n2, ratio2, f"2C_csC_n{n2}r{ratio2}.png", save)
+# print("finished 2C")
+# plot_heatmap(o2f, "2F: shape (channels, samples), Fortran-like index ordering", n2, ratio2, f"2F_csF_n{n2}r{ratio2}.png", save)
+# print("finished 2F")
 
 
 
