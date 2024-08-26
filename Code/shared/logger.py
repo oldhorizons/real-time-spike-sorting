@@ -1,5 +1,8 @@
 import logging
 
+"""
+Logger takes filename (by convention "/logger_[function_name]_t.txt" where t is time initialised), and program_name
+"""
 def set_up_logger(filename, program_name):
     # REF: https://stackoverflow.com/questions/55169364/python-how-to-write-error-in-the-console-in-txt-file
     logger = logging.getLogger(program_name)

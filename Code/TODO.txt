@@ -2,15 +2,17 @@
 
 ENVIRONMENT
 - set up proper dev environment (docker)
-! - structure codebase
 
 OFFLINE - VALIDATION
 - auto download test data - https://janelia.figshare.com/articles/dataset/Simulations_from_kilosort4_paper/25298815/1
 - auto format test data (extract and unpack using mtscomp) - https://github.com/int-brain-lab/mtscomp
-! - crop the test data and results
-! - auto run tests
 ! - compare outputs
+    - finish mapping the clusters to one another
+    - cluster comparison somehow
 
 KILOSORT
 ! - allow for pre-training
 - set up real-time data feed
+- check out the kilosort built-in GUI and see if you can use it (https://github.com/MouseLand/Kilosort) - will need to install it separately?
+- also check out phy for the same thing
+- configurable tracking for specific clusters

@@ -5,6 +5,7 @@ import datetime
 
 #CONFIG
 directory  = 'B:/SpikeData/JCPM4853/JCPM4853'
+directory = 'E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24/sim_hybrid_ZFM-01936_2021-01-24'
 sampling_frequency = 30000
 
 # data for this comes in one of two formats: 
@@ -20,7 +21,7 @@ if os.path.isfile(os.path.join(directory, 'sample_numbers.npy')):
     data = np.memmap(os.path.join(directory, 'continuous.dat'), mode='r', dtype='int16')
     ground_truth = None
 else:
-    sample_numers = None
+    sample_numbers = None
     timestamps = None
     num_channels = 385
     extension = 'bin'
@@ -35,7 +36,7 @@ def write_save(data, filename):
         data.tofile(f)
     f.close()
 
-#save cropped data. length of new data will either be 1/crop rate (if l not given) or l
+#save cropped data. length of new data will either be 1/crop rate (if l not given) or l (default 300000 - 10sec recording)
 def save_cropped_data(data, timestamps=None, sample_numbers=None, offset=0, crop_rate = None, l = 300000, extension = None, ground_truth = None):
     if l == None:
         l = len(data)//crop_rate
@@ -60,7 +61,7 @@ def save_cropped_data(data, timestamps=None, sample_numbers=None, offset=0, crop
     
     if ground_truth != None:
         pass
-        #TODO
+        #TODO or not??
 
 
 ## VISUALISATION FOR DEBUGGING PURPOSES. This one honestly doesn't work all that well
@@ -110,4 +111,4 @@ def show(data, length=2000, filename = None):
     else:
         plt.show()
 
-save_cropped_data(data, timestamps=timestamps, sample_numbers=sample_numbers, extension=extension, ground_truth=ground_truth)
+save_cropped_data(data, timestamps=timestamps, sample_numbers=sample_numbers, extension=extension, ground_truth=ground_truth, l=18000000)

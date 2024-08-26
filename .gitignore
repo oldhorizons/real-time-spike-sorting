@@ -24,8 +24,10 @@ Documents/
 References/
 Data_*
 
+#ignore pycache files
+*__pycache__*
+
 #ignore repo I can't bloody get rid of until I'm at my home PC lmao
-Code/Yass/
 *.env
 
 #ignore binary files
