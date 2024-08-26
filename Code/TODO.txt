@@ -16,3 +16,6 @@ KILOSORT
 - check out the kilosort built-in GUI and see if you can use it (https://github.com/MouseLand/Kilosort) - will need to install it separately?
 - also check out phy for the same thing
 - configurable tracking for specific clusters
+
+HOW TO FORK AND TRACK THE FORK: CHECK IF THIS WORKS LMAO
+https://stackoverflow.com/questions/73400563/pip-install-e-local-git-branch-for-development-environment
