@@ -16,13 +16,11 @@ def load_kilosort_output(dir, version = "4"):
     st = np.load(dir + "spike_times.npy")
     cl = np.load(dir + "spike_clusters.npy")
     wfs = np.load(dir + "templates.npy")
-    simt = np.load(dir + "similar_templates.npy")
-    return simt, st, cl, wfs
+    return st, cl, wfs
 
 def load_ground_truth(dir):
     dir += '/'
     data = np.load(dir + "sim.imec0.ap_params.npz")
-    #TODO - astype from kilosort/bench.py - necessary?
     st = data['st'].astype('int64')
     cl = data['cl'].astype('int64')
     wfs = data['wfs']
@@ -65,7 +63,6 @@ def compare_clusters(matches, cl1, cl2):
 
 def compare_good_clusters(matches, cl1, cl2, q1, q2):
     pass
-
 #NB assumes ST1 is the ground truth
 def df_spike_times(st1, st2):
     arr = [[],[]]
@@ -98,28 +95,21 @@ def main():
     d3 = directory + '/ZFM_SIM_1min'
     d4 = directory + '/ZFM_SIM_10sec'
     (st0, cl0, wfs0) = load_ground_truth(d1)
-    (_, st1, cl1, wfs1) = load_kilosort_output(d1)
-    (_, st2, cl2, wfs2) = load_kilosort_output(d2)
-    (_, st3, cl3, wfs3) = load_kilosort_output(d3)
-    (_, st4, cl4, wfs4) = load_kilosort_output(d4)
+    (st1, cl1, wfs1) = load_kilosort_output(d1)
+    (st2, cl2, wfs2) = load_kilosort_output(d2)
+    (st3, cl3, wfs3) = load_kilosort_output(d3)
+    (st4, cl4, wfs4) = load_kilosort_output(d4)
 
-    m01 = align_spike_times(st0, st1)
-    m01b = align_spike_times(st0, st1, tolerance = 2)
-    m12 = align_spike_times(st1, st2)
 
 def inbuilt_gt():
-    #TODO inputs: gt_filename, gt_ops, gt_path, ops, st, clu
     gt_path = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data_Outputs/ZFM_SIM_full/"
     gt_filename = "E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24/sim_hybrid_ZFM-01936_2021-01-24/continuous.bin"
     ops = np.load(gt_path + "kilosort4/ops.npy", allow_pickle=True).item()
-    ###TODO - IMPORTANT: nwaves is currently 552500 (number of spike times), but may be 100 (number of waveforms)
     gt_ops = np.load(gt_path + "gt_ops.npy", allow_pickle = True).item()
-    st, _, clu, _ = load_kilosort_output(gt_path)
+    st, clu, _ = load_kilosort_output(gt_path)
 
-    #TODO gt_ops and ops might be different, not sure wtf filename is meant to be
     st_gt, clu_gt, yclu_gt, mu_gt, Wsub_gt, nsp = ksb.load_GT(gt_filename, gt_ops, gt_path + "sim.imec0.ap_params.npz", toff = 20, nmax = 600)
-    #st_gt, clu_gt, yclu_gt, Wsub_gt = kilosort.convert_ks_output(gt_ops, gt_st, gt_clu, toff = 20)
-    st_new, clu_new, yclu_new, Wsub_new = ksb.convert_ks_output(ops, st, clu, toff = 20)
+    st_new, clu_new, yclu_new, Wsub_new = ksb.convert_ks_output(gt_filename, ops, st, clu, toff = 20)
     fmax, fmiss, fpos, best_ind, matched_all, top_inds = ksb.compare_recordings(st_gt, clu_gt, yclu_gt, st_new, clu_new, yclu_new)
 
     file = open(logger_dir + "/pickled_outputs", "wb")
