@@ -6,9 +6,8 @@ ENVIRONMENT
 OFFLINE - VALIDATION
 - auto download test data - https://janelia.figshare.com/articles/dataset/Simulations_from_kilosort4_paper/25298815/1
 - auto format test data (extract and unpack using mtscomp) - https://github.com/int-brain-lab/mtscomp
-! - compare outputs
-    - finish mapping the clusters to one another
-    - cluster comparison somehow
+! figure out what those outputs to the comparator actually are, and run it on ground truth sets of different lengths.
+! alter the validate pipeline to let it take non-simulated outputs as ground truths
 
 KILOSORT
 ! - allow for pre-training
