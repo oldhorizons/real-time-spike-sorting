@@ -1,4 +1,5 @@
 import urllib.request
+import shared.config as config
 from tqdm import tqdm
 
 class DownloadProgressBar(tqdm):
@@ -14,11 +15,27 @@ def download_url(url, output_path):
 
 ## FULL DATASET (download locally then decompress)
 # compressed using mtscomp (https://github.com/int-brain-lab/mtscomp)
-# URL = 'https://ibl.flatironinstitute.org/public/mainenlab/Subjects/ZFM-02370/2021-04-28/001/raw_ephys_data/probe00/_spikeglx_ephysData_g0_t0.imec0.ap.e510da60-53e0-4e00-b369-3ea16c45623a.cbin'
 
 ## CROPPED DATASET
 URL = 'http://www.kilosort.org/downloads/ZFM-02370_mini.imec0.ap.bin'
 # all synthetic data
 # URL = 'https://janelia.figshare.com/ndownloader/articles/25298815/versions/1'
 
+
 download_url(URL, URL.split('/')[-1])
+
+
+"""
+DECOMPRESSING THE DATA FILE
+usage: mtsdecomp [-h] [-o [OUT]] [--overwrite] [-nc] [-v] cdata [cmeta]
+
+Decompress a raw binary file.
+
+positional arguments:
+  cdata                 path to the input compressed binary file (.cbin)
+  cmeta                 path to the input compression metadata JSON file (.ch)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o [OUT], --out [OUT] path to the output decompressed file (.bin)
+"""

@@ -2,6 +2,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import datetime
+from validate import crop_ground_truth
 
 #CONFIG
 directory  = 'B:/SpikeData/JCPM4853/JCPM4853'
@@ -25,7 +26,6 @@ else:
     timestamps = None
     num_channels = 385
     extension = 'bin'
-    #TODO check this works
     data = np.memmap(os.path.join(directory, 'continuous.bin'), mode='r', dtype='int16')
     ground_truth = None #TODO
 

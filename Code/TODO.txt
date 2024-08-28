@@ -17,5 +17,8 @@ KILOSORT
 - also check out phy for the same thing
 - configurable tracking for specific clusters
 
-HOW TO FORK AND TRACK THE FORK: CHECK IF THIS WORKS LMAO
-https://stackoverflow.com/questions/73400563/pip-install-e-local-git-branch-for-development-environment
+EVENTUALLY
+- fix download_validation_data.py if you get around to it
+- go back through all your files so far and adhere to the README file structure
+- add grop_grounc_truth to crop_data
+- search FUNCTION DESCRIPTION and finish the docstrings for everything in: bench.py
