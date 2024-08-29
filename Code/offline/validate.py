@@ -22,12 +22,13 @@ def load_kilosort_output(dir, version = "4"):
 def load_ground_truth(dir):
     dir += '/'
     # load ground truth file
-    gt = np.load(dir + "sim.imec0.ap_params.npz")
-    # extract spike times, cluster labels, and waveforms
-    # nb the gt dict also has cb and ci
-    st = gt['st'].astype('int64')
-    cl = gt['cl'].astype('int64')
-    wfs = gt['wfs']
+    with np.load(dir + "sim.imec0.ap_params.npz") as gt:
+        # extract spike times, cluster labels, and waveforms
+        # nb the file also has cb and ci
+        st = gt['st'].astype('int64')
+        cl = gt['cl'].astype('int64')
+        wfs = gt['wfs']
+
     #load operating parameters, if they exist
     try:
         ops = np.load(dir + "gt_ops.npy", allow_pickle = True)
@@ -93,20 +94,20 @@ def crop_output(dir, gt = True, num_samples = None, gt_dir = None):
     - for use in validation of performance with recordings cropped to different lengths
     (i.e. different amounts of training data available)
     """
-    print("CROPPING GROUND TRUTH TO MATCH SORTER")
     if gt_dir == None:
         gt_dir = dir
     if num_samples == None:
         # figure out how many samples
         num_channels = 385 if gt else 384
-        data = np.memmap(dir + 'continuous.bin', mode='r', dtype='int16')
+        data = np.memmap(dir + '/continuous.bin', mode='r', dtype='int16')
         data = data.reshape((len(data) // num_channels, num_channels))
         num_samples = len(data)
     if (gt):
-        gt = np.load(gt_dir + "/sim.imec0.ap_params.npz")
-        st = gt['st'].astype('int64')
-        cl = gt['cl'].astype('int64')
-        wfs = gt['wfs']
+        with np.load(dir + "/sim.imec0.ap_params.npz") as gt:
+            gt = dict(gt)
+            st = gt['st'].astype('int64')
+            cl = gt['cl'].astype('int64')
+            wfs = gt['wfs']
     else:
         st, cl, wfs, _ = load_kilosort_output(gt_dir)
 
@@ -116,7 +117,7 @@ def crop_output(dir, gt = True, num_samples = None, gt_dir = None):
     st = st[:crop_index]
     cl = cl[:crop_index]
     wfs = wfs[:crop_index]
-    if len(np.unique(cl)) != np.max(cl):
+    if len(np.unique(cl)) <= np.max(cl):
         cl, wfs = relabel_cropped_cl(cl, wfs)
 
     #save new data
@@ -124,14 +125,14 @@ def crop_output(dir, gt = True, num_samples = None, gt_dir = None):
         gt['st'] = st
         gt['cl'] = cl
         gt['wfs'] = wfs
-        np.save(dir + "/sim.imec0.ap_params.npz", gt)
+        np.savez(dir + "/sim.imec0.ap_params.npz", gt)
     else:
         np.save(dir + "spike_times.npy", st)
         np.save(dir + "spike_clusters.npy", cl)
         np.save(dir + "templates.npy", wfs)
 
 
-def run_ks_bench(dir, gt_dir = None, pickle = True):
+def run_ks_bench(dir, gt_dir = None, p = True):
     if gt_dir == None:
         gt_dir = dir
     # load in necessary variables
@@ -139,7 +140,7 @@ def run_ks_bench(dir, gt_dir = None, pickle = True):
     data_location = dir + "/continuous.bin"
 
     # convert to comparable format
-    st_gt, clu_gt, yclu_gt, mu_gt, Wsub_gt, nsp = ksb.load_GT(data_location, gt_ops, gt_dir + "sim.imec0.ap_params.npz", toff = 20, nmax = 600)
+    st_gt, clu_gt, yclu_gt, mu_gt, Wsub_gt, nsp = ksb.load_GT(data_location, gt_ops, gt_dir + "/sim.imec0.ap_params.npz", toff = 20, nmax = 600)
     st_new, clu_new, yclu_new, Wsub_new = ksb.convert_ks_output(data_location, ks_ops, ks_st, ks_cl, toff = 20)
 
     # perform comparison
@@ -147,7 +148,7 @@ def run_ks_bench(dir, gt_dir = None, pickle = True):
 
     #save results
     results = {"fmax": fmax, "fmiss": fmiss, "fpos": fpos, "best_ind": best_ind, "matched_all": matched_all, "top_inds": top_inds}
-    if pickle:
+    if p:
         filename = f"benchmark_{int(time.time())}.pkl"
         file = open(logger_dir + "/pickled_outputs/" + filename, "wb")
         pickle.dump(results, file)

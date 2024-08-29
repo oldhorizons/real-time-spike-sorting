@@ -6,8 +6,7 @@ ENVIRONMENT
 OFFLINE - VALIDATION
 - auto download test data - https://janelia.figshare.com/articles/dataset/Simulations_from_kilosort4_paper/25298815/1
 - auto format test data (extract and unpack using mtscomp) - https://github.com/int-brain-lab/mtscomp
-! figure out what those outputs to the comparator actually are, and run it on ground truth sets of different lengths.
-! alter the validate pipeline to let it take non-simulated outputs as ground truths
+- take crop out of validate and chuck it in crop aye
 
 KILOSORT
 ! - allow for pre-training
@@ -21,3 +20,5 @@ EVENTUALLY
 - go back through all your files so far and adhere to the README file structure
 - add grop_grounc_truth to crop_data
 - search FUNCTION DESCRIPTION and finish the docstrings for everything in: bench.py
+- fix up your folder structure lmao it's gross at the moment
+- figure out how to merge clusters - oversplitting by a factor of 8 at the moment
