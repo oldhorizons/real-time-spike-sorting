@@ -7,7 +7,6 @@ import pickle
 
 # CONFIG
 dataName = None
-dataName = "SIM_HYBRID_10S_ONEDRIVE"
 logger_dir = config.logger_dir
 # data_base_dir = config.data_dir
 setups = config.datasets
@@ -26,33 +25,23 @@ def do_kilosort(data_dir, n_channels, probe_name, save_outputs = False):
         file.close()
 
 
-if __name__ == "__main__":
+def many_kilosort(dataDirs):
+    """
+    does many kilosorts and logs the results
+    
+    """
     t = int(time.time())
     log = logger.set_up_logger(logger_dir + f"/logger_do_kilosort_{t}.txt", 'RUN_KILOSORT')
-    if dataName == None or type(dataName) == list:
-        # run through all dict keys
-        for key in setups.keys():
-            if dataName != None:
-                if key not in dataName:
-                    continue
-            print(f"RUNNING KILOSORT FOR {key}")
-            d = setups[key]
-            data_dir = d["data_dir"]
-            n_channels = d["n_channels"]
-            probe_name = d["probe_name"]
-            try: 
-                log.info(f"START: {key}")
-                do_kilosort(data_dir, n_channels, probe_name, True)
-                log.info(f"SUCCESS: {key}")
-            except Exception as e:
-                log.exception(e)
-    else: 
-        #run through single dataset
-        d = setups[dataName]
+    for d in dataDirs:
+        print(f"RUNNING KILOSORT FOR {d}")
+        data_name = d["data_name"]
         data_dir = d["data_dir"]
         n_channels = d["n_channels"]
         probe_name = d["probe_name"]
-        log.info(f"START: {dataName}")
-        do_kilosort(data_dir, n_channels, probe_name, True)
-        log.info(f"SUCCESS: {dataName}")
+        try: 
+            log.info(f"START: {data_name}")
+            do_kilosort(data_dir, n_channels, probe_name, True)
+            log.info(f"SUCCESS: {data_name}")
+        except Exception as e:
+            log.exception(e)
  

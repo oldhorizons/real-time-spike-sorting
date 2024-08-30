@@ -22,7 +22,8 @@ Admin/
 Data/
 Documents/
 References/
-Data_*
+Data/
+Outputs/
 
 #ignore pycache files
 *__pycache__*
@@ -32,3 +33,5 @@ Data_*
 
 #ignore binary files
 *.bin
+
+.phy/
