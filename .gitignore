@@ -25,7 +25,7 @@ References/
 Data/
 Outputs/
 
-Code/online/bonsai/output/
+Code/online/david_bonsai/output/
 
 #ignore pycache files
 *__pycache__*
