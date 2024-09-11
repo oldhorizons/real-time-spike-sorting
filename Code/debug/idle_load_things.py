@@ -89,3 +89,4 @@ def load_gt(data_dir):
 #     print(f"CROPPED DATA SAVED TO {new_dir}")
 
 pca
+# https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.TruncatedSVD.html

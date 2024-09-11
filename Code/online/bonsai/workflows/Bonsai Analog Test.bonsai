@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:onix1="clr-namespace:OpenEphys.Onix1;assembly=OpenEphys.Onix1"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:CreateContext">
+          <onix1:Driver>riffa</onix1:Driver>
+          <onix1:Index>0</onix1:Index>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:ConfigureBreakoutBoard">
+          <onix1:Name>BreakoutBoard</onix1:Name>
+          <onix1:Heartbeat>
+            <onix1:DeviceName>BreakoutBoard/Heartbeat</onix1:DeviceName>
+            <onix1:DeviceAddress>0</onix1:DeviceAddress>
+            <onix1:Enable>true</onix1:Enable>
+            <onix1:BeatsPerSecond>10</onix1:BeatsPerSecond>
+          </onix1:Heartbeat>
+          <onix1:AnalogIO>
+            <onix1:DeviceName>BreakoutBoard/BreakoutAnalogIO</onix1:DeviceName>
+            <onix1:DeviceAddress>6</onix1:DeviceAddress>
+            <onix1:Enable>true</onix1:Enable>
+            <onix1:InputRange0>TenVolts</onix1:InputRange0>
+            <onix1:InputRange1>TenVolts</onix1:InputRange1>
+            <onix1:InputRange2>TenVolts</onix1:InputRange2>
+            <onix1:InputRange3>TenVolts</onix1:InputRange3>
+            <onix1:InputRange4>TenVolts</onix1:InputRange4>
+            <onix1:InputRange5>TenVolts</onix1:InputRange5>
+            <onix1:InputRange6>TenVolts</onix1:InputRange6>
+            <onix1:InputRange7>TenVolts</onix1:InputRange7>
+            <onix1:InputRange8>TenVolts</onix1:InputRange8>
+            <onix1:InputRange9>TenVolts</onix1:InputRange9>
+            <onix1:InputRange10>TenVolts</onix1:InputRange10>
+            <onix1:InputRange11>TenVolts</onix1:InputRange11>
+            <onix1:Direction0>Input</onix1:Direction0>
+            <onix1:Direction1>Input</onix1:Direction1>
+            <onix1:Direction2>Input</onix1:Direction2>
+            <onix1:Direction3>Input</onix1:Direction3>
+            <onix1:Direction4>Input</onix1:Direction4>
+            <onix1:Direction5>Input</onix1:Direction5>
+            <onix1:Direction6>Input</onix1:Direction6>
+            <onix1:Direction7>Input</onix1:Direction7>
+            <onix1:Direction8>Input</onix1:Direction8>
+            <onix1:Direction9>Input</onix1:Direction9>
+            <onix1:Direction10>Input</onix1:Direction10>
+            <onix1:Direction11>Input</onix1:Direction11>
+          </onix1:AnalogIO>
+          <onix1:DigitalIO>
+            <onix1:DeviceName>BreakoutBoard/BreakoutDigitalIO</onix1:DeviceName>
+            <onix1:DeviceAddress>7</onix1:DeviceAddress>
+            <onix1:Enable>true</onix1:Enable>
+          </onix1:DigitalIO>
+          <onix1:MemoryMonitor>
+            <onix1:DeviceName>BreakoutBoard/MemoryMonitor</onix1:DeviceName>
+            <onix1:DeviceAddress>10</onix1:DeviceAddress>
+            <onix1:Enable>false</onix1:Enable>
+            <onix1:SamplesPerSecond>10</onix1:SamplesPerSecond>
+          </onix1:MemoryMonitor>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:StartAcquisition">
+          <onix1:ReadSize>2048</onix1:ReadSize>
+          <onix1:WriteSize>2048</onix1:WriteSize>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="onix1:BreakoutAnalogInput">
+          <onix1:DeviceName>BreakoutBoard/BreakoutAnalogIO</onix1:DeviceName>
+          <onix1:BufferSize>100</onix1:BufferSize>
+          <onix1:DataType>S16</onix1:DataType>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>AnalogData</Selector>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
