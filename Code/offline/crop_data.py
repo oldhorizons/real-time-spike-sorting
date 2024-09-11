@@ -92,7 +92,7 @@ def relabel_cropped_cl(cl, wfs = []):
         np.delete(wfs, wfs_remove)
     return cl, wfs
 
-def crop_gt(gt, num_samples, offset):
+def crop_gt(new_dir, gt, num_samples, offset):
     """
     crops ground truth
     Args: 
@@ -114,7 +114,7 @@ def crop_gt(gt, num_samples, offset):
     if len(np.unique(cl)) <= np.max(cl) or len(np.unique(cl)) < cl0:
         cl, wfs = relabel_cropped_cl(cl, wfs)
     
-    return {'st': st, 'cl': cl, 'wfs': wfs}
+    np.savez(new_dir + "/sim.imec0.ap_params.npz", st=st, cl=cl, wfs=wfs)
 
 def write_save(data, filename):
     with open(filename, 'wb') as f:
@@ -153,8 +153,7 @@ def crop_data(data_dir, num_samples = 300000, gt_dir = None, offset = 0):
 
     # crop ground truth and save
     if gt_dir != None:
-        new_gt = crop_gt(gt, num_samples, offset)
-        np.savez(new_dir + "/sim.imec0.ap_params.npz", new_gt)
+        crop_gt(new_dir, gt, num_samples, offset)
     
     print(f"CROPPED DATA SAVED TO {new_dir}")
 

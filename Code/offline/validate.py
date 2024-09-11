@@ -47,6 +47,7 @@ def save_ops(dir, ops, target="ksgt"):
         np.save(dir + "/kilosort4/ops.npy", ops, allow_pickle = True)
     if "gt" in target:
         np.save(dir + "/gt_ops.npy", ops, allow_pickle = True)
+    return ops
 
 
 def load_all(data_dir, gt_dir = None, version = "4", ):
@@ -60,12 +61,13 @@ def load_all(data_dir, gt_dir = None, version = "4", ):
     ks_st, ks_cl, ks_wfs, ks_ops = load_kilosort_output(data_dir, version)
     # gt needs ops to run
     if gt_ops == None:
-        save_ops(data_dir, ks_ops)
+        ops = save_ops(data_dir, ks_ops)
+        gt_ops = ops
     return [gt_st, gt_cl, gt_wfs, gt_ops, ks_st, ks_cl, ks_wfs, ks_ops]
 
-def run_ks_bench(data_dir, gt_dir = None, p = True):
+def run_ks_bench(data_dir, gt_dir = None, p = True, pName = ""):
     if gt_dir == None:
-        gt_dir = dir
+        gt_dir = data_dir
     # load in necessary variables
     _, _, _, gt_ops, ks_st, ks_cl, _, ks_ops = load_all(data_dir, gt_dir)
     data_location = data_dir + "/continuous.bin"
@@ -80,9 +82,9 @@ def run_ks_bench(data_dir, gt_dir = None, p = True):
     #save results
     results = {"fmax": fmax, "fmiss": fmiss, "fpos": fpos, "best_ind": best_ind, "matched_all": matched_all, "top_inds": top_inds}
     if p:
-        filename = f"/benchmark_{int(time.time())}.pkl"
+        filename = f"/benchmark_{pName}_{int(time.time())}.pkl"
         file = open(pickle_dir + filename, "wb")
-        pickle.dumps(results, file)
+        pickle.dump(results, file)
         file.close()
     return results
 

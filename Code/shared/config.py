@@ -19,6 +19,10 @@ datasets = {
         "data_dir": data_dir + "/sim_hybrid_ZFM_FULL",
         "n_channels": 385,
         "probe_name": "neuropixPhase3B1_kilosortChanMap.mat" },
+    "ODRV_SIM_HYBRID_ZFM_10S": { #hybrid
+        "data_dir": "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec",
+        "n_channels": 385,
+        "probe_name": "neuropixPhase3B1_kilosortChanMap.mat" },
     "SIM_HYBRID_ZFM_10S": { #hybrid
         # "data_dir": "E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24/sim_hybrid_ZFM-01936_2021-01-24_CROPPED_10s",
         "data_dir": data_dir + "/sim_hybrid_ZFM_00m10s",

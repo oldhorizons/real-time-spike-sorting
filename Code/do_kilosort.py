@@ -33,11 +33,11 @@ def many_kilosort(dataDirs):
     t = int(time.time())
     log = logger.set_up_logger(logger_dir + f"/logger_do_kilosort_{t}.txt", 'RUN_KILOSORT')
     for d in dataDirs:
-        print(f"RUNNING KILOSORT FOR {d}")
         data_name = d["data_name"]
         data_dir = d["data_dir"]
         n_channels = d["n_channels"]
         probe_name = d["probe_name"]
+        print(f"RUNNING KILOSORT FOR {data_name}")
         try: 
             log.info(f"START: {data_name}")
             do_kilosort(data_dir, n_channels, probe_name, True)
