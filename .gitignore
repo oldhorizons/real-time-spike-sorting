@@ -37,3 +37,7 @@ Code/online/david_bonsai/output/
 *.bin
 
 .phy/
+
+#ignore compiled files
+*/bin/
+*/obj/
