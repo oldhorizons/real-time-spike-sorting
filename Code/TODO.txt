@@ -6,14 +6,12 @@ ENVIRONMENT
 OFFLINE - VALIDATION
 - auto download test data - https://janelia.figshare.com/articles/dataset/Simulations_from_kilosort4_paper/25298815/1
 - auto format test data (extract and unpack using mtscomp) - https://github.com/int-brain-lab/mtscomp
-- take crop out of validate and chuck it in crop aye
 
 KILOSORT
-! - allow for pre-training
 - set up real-time data feed
 - check out the kilosort built-in GUI and see if you can use it (https://github.com/MouseLand/Kilosort) - will need to install it separately?
 - also check out phy for the same thing
-- configurable tracking for specific clusters
+- configurable tracking for specific clusters - export chosen clusters to best channels
 
 EVENTUALLY
 - fix download_validation_data.py if you get around to it

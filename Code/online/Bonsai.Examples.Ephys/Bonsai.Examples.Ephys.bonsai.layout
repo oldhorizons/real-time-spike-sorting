@@ -17,45 +17,12 @@
   <DialogSettings>
     <Visible>false</Visible>
     <Location>
-      <X>808</X>
-      <Y>191</Y>
+      <X>116</X>
+      <Y>129</Y>
     </Location>
     <Size>
-      <Width>416</Width>
-      <Height>406</Height>
-    </Size>
-    <WindowState>Normal</WindowState>
-    <VisualizerTypeName>Bonsai.Design.Visualizers.TimeSeriesVisualizer</VisualizerTypeName>
-    <VisualizerSettings>
-      <TimeSeriesVisualizer>
-        <Capacity>640</Capacity>
-        <Min>0</Min>
-        <Max>1.1</Max>
-        <AutoScale>true</AutoScale>
-      </TimeSeriesVisualizer>
-    </VisualizerSettings>
-  </DialogSettings>
-  <DialogSettings>
-    <Visible>false</Visible>
-    <Location>
-      <X>0</X>
-      <Y>0</Y>
-    </Location>
-    <Size>
-      <Width>0</Width>
-      <Height>0</Height>
-    </Size>
-    <WindowState>Normal</WindowState>
-  </DialogSettings>
-  <DialogSettings>
-    <Visible>false</Visible>
-    <Location>
-      <X>999</X>
-      <Y>629</Y>
-    </Location>
-    <Size>
-      <Width>416</Width>
-      <Height>279</Height>
+      <Width>412</Width>
+      <Height>277</Height>
     </Size>
     <WindowState>Normal</WindowState>
   </DialogSettings>
@@ -72,66 +39,30 @@
     <WindowState>Normal</WindowState>
   </DialogSettings>
   <DialogSettings>
-    <Visible>false</Visible>
+    <Visible>true</Visible>
     <Location>
-      <X>0</X>
-      <Y>0</Y>
+      <X>131</X>
+      <Y>213</Y>
     </Location>
     <Size>
-      <Width>0</Width>
-      <Height>0</Height>
-    </Size>
-    <WindowState>Normal</WindowState>
-  </DialogSettings>
-  <DialogSettings>
-    <Visible>false</Visible>
-    <Location>
-      <X>0</X>
-      <Y>0</Y>
-    </Location>
-    <Size>
-      <Width>0</Width>
-      <Height>0</Height>
-    </Size>
-    <WindowState>Normal</WindowState>
-  </DialogSettings>
-  <DialogSettings>
-    <Visible>false</Visible>
-    <Location>
-      <X>0</X>
-      <Y>0</Y>
-    </Location>
-    <Size>
-      <Width>0</Width>
-      <Height>0</Height>
-    </Size>
-    <WindowState>Normal</WindowState>
-  </DialogSettings>
-  <DialogSettings>
-    <Visible>false</Visible>
-    <Location>
-      <X>702</X>
-      <Y>503</Y>
-    </Location>
-    <Size>
-      <Width>612</Width>
-      <Height>424</Height>
+      <Width>498</Width>
+      <Height>334</Height>
     </Size>
     <WindowState>Normal</WindowState>
     <VisualizerTypeName>Bonsai.Dsp.Design.MatVisualizer</VisualizerTypeName>
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>10000</YMin>
-        <YMax>60000</YMax>
+        <XMax>1.2</XMax>
+        <YMin>0</YMin>
+        <YMax>1.2</YMax>
         <AutoScaleX>true</AutoScaleX>
-        <AutoScaleY>false</AutoScaleY>
+        <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
-        <ChannelsPerPage>16</ChannelsPerPage>
+        <ChannelsPerPage>32</ChannelsPerPage>
         <OverlayChannels>false</OverlayChannels>
         <ChannelOffset>0</ChannelOffset>
-        <HistoryLength>10000</HistoryLength>
+        <HistoryLength>10</HistoryLength>
         <WaveformBufferLength>1</WaveformBufferLength>
       </MatVisualizer>
     </VisualizerSettings>
@@ -159,5 +90,55 @@
       <Height>0</Height>
     </Size>
     <WindowState>Normal</WindowState>
+  </DialogSettings>
+  <DialogSettings>
+    <Visible>true</Visible>
+    <Location>
+      <X>621</X>
+      <Y>318</Y>
+    </Location>
+    <Size>
+      <Width>461</Width>
+      <Height>331</Height>
+    </Size>
+    <WindowState>Normal</WindowState>
+    <VisualizerTypeName>Bonsai.Dsp.Design.SpikeWaveformCollectionVisualizer</VisualizerTypeName>
+    <VisualizerSettings>
+      <SpikeWaveformCollectionVisualizer>
+        <XMin>0</XMin>
+        <XMax>1</XMax>
+        <YMin>-3000</YMin>
+        <YMax>3000</YMax>
+        <AutoScaleX>true</AutoScaleX>
+        <AutoScaleY>false</AutoScaleY>
+        <SelectedPage>0</SelectedPage>
+        <ChannelsPerPage>16</ChannelsPerPage>
+        <OverlayChannels>false</OverlayChannels>
+        <ChannelOffset>0</ChannelOffset>
+        <HistoryLength>1</HistoryLength>
+        <WaveformBufferLength>20</WaveformBufferLength>
+      </SpikeWaveformCollectionVisualizer>
+    </VisualizerSettings>
+  </DialogSettings>
+  <DialogSettings>
+    <Visible>true</Visible>
+    <Location>
+      <X>131</X>
+      <Y>542</Y>
+    </Location>
+    <Size>
+      <Width>266</Width>
+      <Height>155</Height>
+    </Size>
+    <WindowState>Normal</WindowState>
+    <VisualizerTypeName>Bonsai.Design.Visualizers.TimeSeriesVisualizer</VisualizerTypeName>
+    <VisualizerSettings>
+      <TimeSeriesVisualizer>
+        <Capacity>640</Capacity>
+        <Min>0</Min>
+        <Max>1.1</Max>
+        <AutoScale>true</AutoScale>
+      </TimeSeriesVisualizer>
+    </VisualizerSettings>
   </DialogSettings>
 </VisualizerLayout>

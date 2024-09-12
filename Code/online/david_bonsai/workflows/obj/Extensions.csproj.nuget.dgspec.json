@@ -1,0 +1,65 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\miche\\OneDrive\\Documents\\01 Uni\\REIT4841\\Code\\online\\david_bonsai\\workflows\\Extensions.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\miche\\OneDrive\\Documents\\01 Uni\\REIT4841\\Code\\online\\david_bonsai\\workflows\\Extensions.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\miche\\OneDrive\\Documents\\01 Uni\\REIT4841\\Code\\online\\david_bonsai\\workflows\\Extensions.csproj",
+        "projectName": "Extensions",
+        "projectPath": "C:\\Users\\miche\\OneDrive\\Documents\\01 Uni\\REIT4841\\Code\\online\\david_bonsai\\workflows\\Extensions.csproj",
+        "packagesPath": "C:\\Users\\miche\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\miche\\OneDrive\\Documents\\01 Uni\\REIT4841\\Code\\online\\david_bonsai\\workflows\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\miche\\OneDrive\\Documents\\01 Uni\\REIT4841\\Code\\online\\david_bonsai\\workflows\\NuGet.Config",
+          "C:\\Users\\miche\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net472"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://www.myget.org/F/bonsai-community/api/v3/index.json": {},
+          "https://www.myget.org/F/bonsai/api/v3/index.json": {}
+        },
+        "frameworks": {
+          "net472": {
+            "targetAlias": "net472",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net472": {
+          "targetAlias": "net472",
+          "dependencies": {
+            "Bonsai.Core": {
+              "target": "Package",
+              "version": "[2.8.5, )"
+            },
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
