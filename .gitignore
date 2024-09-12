@@ -41,3 +41,4 @@ Code/online/david_bonsai/output/
 #ignore compiled files
 */bin/
 */obj/
+*/Bonsai.Examples*
