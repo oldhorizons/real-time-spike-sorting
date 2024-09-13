@@ -17,16 +17,16 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
+        <XMax>1.2</XMax>
         <YMin>0</YMin>
-        <YMax>1.1</YMax>
+        <YMax>1.2</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
         <ChannelsPerPage>16</ChannelsPerPage>
-        <OverlayChannels>true</OverlayChannels>
+        <OverlayChannels>false</OverlayChannels>
         <ChannelOffset>0</ChannelOffset>
-        <HistoryLength>1</HistoryLength>
+        <HistoryLength>100</HistoryLength>
         <WaveformBufferLength>1</WaveformBufferLength>
       </MatVisualizer>
     </VisualizerSettings>
@@ -46,16 +46,16 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>0</YMin>
-        <YMax>1.1</YMax>
+        <XMax>3000</XMax>
+        <YMin>-2000000</YMin>
+        <YMax>5000000</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
         <ChannelsPerPage>16</ChannelsPerPage>
-        <OverlayChannels>true</OverlayChannels>
+        <OverlayChannels>false</OverlayChannels>
         <ChannelOffset>0</ChannelOffset>
-        <HistoryLength>1</HistoryLength>
+        <HistoryLength>100</HistoryLength>
         <WaveformBufferLength>1</WaveformBufferLength>
       </MatVisualizer>
     </VisualizerSettings>
@@ -82,23 +82,11 @@
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
         <ChannelsPerPage>16</ChannelsPerPage>
-        <OverlayChannels>true</OverlayChannels>
+        <OverlayChannels>false</OverlayChannels>
         <ChannelOffset>0</ChannelOffset>
-        <HistoryLength>1</HistoryLength>
+        <HistoryLength>100</HistoryLength>
         <WaveformBufferLength>1</WaveformBufferLength>
       </MatVisualizer>
     </VisualizerSettings>
-  </DialogSettings>
-  <DialogSettings>
-    <Visible>false</Visible>
-    <Location>
-      <X>0</X>
-      <Y>0</Y>
-    </Location>
-    <Size>
-      <Width>0</Width>
-      <Height>0</Height>
-    </Size>
-    <WindowState>Normal</WindowState>
   </DialogSettings>
 </VisualizerLayout>
