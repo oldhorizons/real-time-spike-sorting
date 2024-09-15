@@ -30,10 +30,18 @@
           <dsp:FilterType>BandPass</dsp:FilterType>
         </Combinator>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:SpikeDetector">
+          <p1:Delay>0</p1:Delay>
+          <p1:Length>0</p1:Length>
+          <p1:WaveformRefinement>AlignPeaks</p1:WaveformRefinement>
+        </Combinator>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
       <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

@@ -9,7 +9,7 @@ using OpenCV.Net;
 [Combinator]
 [Description("")]
 [WorkflowElementCategory(ElementCategory.Transform)]
-public class SpikeDetect
+public class DebugDataTransform
 {
     public IObservable<Mat> Process(IObservable<Mat> source)
     {

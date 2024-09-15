@@ -39,6 +39,6 @@ Code/online/david_bonsai/output/
 .phy/
 
 #ignore compiled files
-*/bin/
-*/obj/
+**/bin/
+**/obj/
 */Bonsai.Examples*

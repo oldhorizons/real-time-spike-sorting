@@ -19,6 +19,39 @@
           }
         }
       },
+      "Bonsai.Dsp/2.8.1": {
+        "type": "package",
+        "dependencies": {
+          "Bonsai.System": "2.8.1",
+          "OpenCV.Net": "3.4.2"
+        },
+        "compile": {
+          "lib/net462/Bonsai.Dsp.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net462/Bonsai.Dsp.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Bonsai.System/2.8.1": {
+        "type": "package",
+        "dependencies": {
+          "Bonsai.Core": "2.8.1"
+        },
+        "compile": {
+          "lib/net462/Bonsai.System.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net462/Bonsai.System.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.NETFramework.ReferenceAssemblies/1.0.3": {
         "type": "package",
         "dependencies": {
@@ -125,6 +158,34 @@
         "lib/net6.0/Bonsai.Core.xml",
         "lib/netstandard2.0/Bonsai.Core.dll",
         "lib/netstandard2.0/Bonsai.Core.xml"
+      ]
+    },
+    "Bonsai.Dsp/2.8.1": {
+      "sha512": "zXBb6zHZku6dtS7DkcW5QP3E14IwI5Jq7IxAym1AoQ37jzH3VZEwNeMkb/EkkSqB5+gCBmht/GYc1KH4KvOZ1Q==",
+      "type": "package",
+      "path": "bonsai.dsp/2.8.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "bonsai.dsp.2.8.1.nupkg.sha512",
+        "bonsai.dsp.nuspec",
+        "lib/net462/Bonsai.Dsp.dll",
+        "lib/net462/Bonsai.Dsp.xml"
+      ]
+    },
+    "Bonsai.System/2.8.1": {
+      "sha512": "JkFfV4AWiFH0TFc+dad2xzh7IVJfoISfhfoMqpWq3JmsoS2aDrCALB6ctiEm6n0wgn6VS6eG1hHFPlMT//0giQ==",
+      "type": "package",
+      "path": "bonsai.system/2.8.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "bonsai.system.2.8.1.nupkg.sha512",
+        "bonsai.system.nuspec",
+        "lib/net462/Bonsai.System.dll",
+        "lib/net462/Bonsai.System.xml",
+        "lib/netstandard2.0/Bonsai.System.dll",
+        "lib/netstandard2.0/Bonsai.System.xml"
       ]
     },
     "Microsoft.NETFramework.ReferenceAssemblies/1.0.3": {
@@ -665,6 +726,7 @@
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.7.2": [
       "Bonsai.Core >= 2.8.5",
+      "Bonsai.Dsp >= 2.8.1",
       "Microsoft.NETFramework.ReferenceAssemblies >= 1.0.3",
       "OpenCV.Net >= 3.4.2"
     ]
@@ -717,6 +779,10 @@
           "Bonsai.Core": {
             "target": "Package",
             "version": "[2.8.5, )"
+          },
+          "Bonsai.Dsp": {
+            "target": "Package",
+            "version": "[2.8.1, )"
           },
           "Microsoft.NETFramework.ReferenceAssemblies": {
             "suppressParent": "All",

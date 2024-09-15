@@ -1,10 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "TgEdek83I2Y=",
+  "dgSpecHash": "8Z24R5FbvGs=",
   "success": true,
   "projectFilePath": "C:\\Users\\miche\\OneDrive\\Documents\\01 Uni\\REIT4841\\Code\\online\\michelle_bonsai\\Extensions.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\miche\\.nuget\\packages\\bonsai.core\\2.8.5\\bonsai.core.2.8.5.nupkg.sha512",
+    "C:\\Users\\miche\\.nuget\\packages\\bonsai.dsp\\2.8.1\\bonsai.dsp.2.8.1.nupkg.sha512",
+    "C:\\Users\\miche\\.nuget\\packages\\bonsai.system\\2.8.1\\bonsai.system.2.8.1.nupkg.sha512",
     "C:\\Users\\miche\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.3\\microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
     "C:\\Users\\miche\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net472\\1.0.3\\microsoft.netframework.referenceassemblies.net472.1.0.3.nupkg.sha512",
     "C:\\Users\\miche\\.nuget\\packages\\opencv.net\\3.4.2\\opencv.net.3.4.2.nupkg.sha512",
