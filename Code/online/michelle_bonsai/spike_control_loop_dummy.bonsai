@@ -32,8 +32,11 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:SpikeDetector">
-          <p1:Delay>0</p1:Delay>
-          <p1:Length>0</p1:Length>
+          <p1:Delay>20</p1:Delay>
+          <p1:Length>60</p1:Length>
+          <p1:Threshold>
+            <p1:double>-100</p1:double>
+          </p1:Threshold>
           <p1:WaveformRefinement>AlignPeaks</p1:WaveformRefinement>
         </Combinator>
       </Expression>

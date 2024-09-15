@@ -5,8 +5,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>82</X>
-      <Y>418</Y>
+      <X>28</X>
+      <Y>347</Y>
     </Location>
     <Size>
       <Width>413</Width>
@@ -34,8 +34,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>482</X>
-      <Y>439</Y>
+      <X>368</X>
+      <Y>301</Y>
     </Location>
     <Size>
       <Width>413</Width>
@@ -46,9 +46,9 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>3000</XMax>
-        <YMin>-2000000</YMin>
-        <YMax>5000000</YMax>
+        <XMax>1.2</XMax>
+        <YMin>0</YMin>
+        <YMax>1.2</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
@@ -63,8 +63,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>904</X>
-      <Y>442</Y>
+      <X>729</X>
+      <Y>480</Y>
     </Location>
     <Size>
       <Width>413</Width>
@@ -92,12 +92,12 @@
   <DialogSettings>
     <Visible>false</Visible>
     <Location>
-      <X>0</X>
-      <Y>0</Y>
+      <X>818</X>
+      <Y>149</Y>
     </Location>
     <Size>
-      <Width>0</Width>
-      <Height>0</Height>
+      <Width>413</Width>
+      <Height>278</Height>
     </Size>
     <WindowState>Normal</WindowState>
   </DialogSettings>
