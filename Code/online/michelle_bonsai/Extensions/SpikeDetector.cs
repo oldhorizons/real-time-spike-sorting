@@ -69,39 +69,32 @@ public class SpikeDetector : Combinator<Mat, SpikeWaveformCollection>
             int[] refractoryChannels = null;
             SampleBuffer[] activeSpikes = null;
             long ioff = 0L;
-            Console.WriteLine("01");
             return source.Publish(ps => ps.Zip(delay.Process(ps), (input, delayed) =>
             {
                 SpikeWaveformCollection spikes = new SpikeWaveformCollection(input.Size);
                 if (activeSpikes == null)
                 {
-                    Console.WriteLine("active spikes null");
                     triggerBuffer = new byte[input.Cols];
                     activeChannels = new bool[input.Rows];
                     refractoryChannels = new int[input.Rows];
-                    activeSpikes = new SampleBuffer[input.Rows];
+                    activeSpikes = new SampleBuffer[input.Rows];    
                 }
 
                 double[] thresholdValues = Threshold ?? DefaultThreshold;
                 if (thresholdValues.Length == 0) thresholdValues = DefaultThreshold;
-                Console.WriteLine("02");
                 for (int i = 0; i < activeSpikes.Length; i++)
                 {
-                    Console.WriteLine("activespikes length");
                     using (Mat channel = input.GetRow(i))
                     using (Mat delayedChannel = delayed.GetRow(i))
                     {
-                        Console.WriteLine("03");
                         double threshold = thresholdValues.Length > 1 ? thresholdValues[i] : thresholdValues[0];
                         if (activeSpikes[i] != null)
                         {
-                            Console.WriteLine("activespikes not null");
                             SampleBuffer buffer = activeSpikes[i];
                             buffer = UpdateBuffer(buffer, delayedChannel, 0, delay.Count, threshold);
                             activeSpikes[i] = buffer;
                             if (buffer.Completed)
                             {
-                                Console.WriteLine("buffer completed");
                                 spikes.Add(new SpikeWaveform
                                 {
                                     ChannelIndex = i,
@@ -115,26 +108,23 @@ public class SpikeDetector : Combinator<Mat, SpikeWaveformCollection>
 
                         using (Mat triggerHeader = Mat.CreateMatHeader(triggerBuffer))
                         {
-                            Console.WriteLine("trigger header");
                             //TODO  - too much data lost?
-                            Mat ch2 = new Mat(channel.Rows, channel.Cols, Depth.U8, 1);
-                            CV.Normalize(channel, ch2, 0, 255, NormTypes.L2);
+                            // Mat ch2 = new Mat(channel.Rows, channel.Cols, Depth.U8, 1);
+                            // CV.Normalize(channel, ch2, 0, 255, NormTypes.L2);
                             // CV.ConvertScale(channel, ch2, 0.00390625, 0);
                             
                             CV.Threshold(
-                                ch2,
+                                channel,
                                 triggerHeader,
                                 threshold, 1,
                                 threshold < 0 ? ThresholdTypes.BinaryInv : ThresholdTypes.Binary);
                         }
-                        Console.WriteLine("threshold finished");
 
                         for (int j = 0; j < triggerBuffer.Length; j++)
                         {
                             bool triggerHigh = triggerBuffer[j] > 0;
                             if (triggerHigh && !activeChannels[i] && refractoryChannels[i] == 0 && activeSpikes[i] == null)
                             {
-                                Console.WriteLine("SPIKE DETECTED??");
                                 int length = Length;
                                 refractoryChannels[i] = length;
                                 SampleBuffer buffer = new SampleBuffer(channel, length, j + ioff);
@@ -142,7 +132,6 @@ public class SpikeDetector : Combinator<Mat, SpikeWaveformCollection>
                                 buffer = UpdateBuffer(buffer, delayedChannel, j, delay.Count, threshold);
                                 if (buffer.Completed)
                                 {
-                                    Console.WriteLine("buffer completed");
                                     spikes.Add(new SpikeWaveform
                                     {
                                         ChannelIndex = i,
@@ -151,13 +140,11 @@ public class SpikeDetector : Combinator<Mat, SpikeWaveformCollection>
                                     });
                                 }
                                 else activeSpikes[i] = buffer;
-                                Console.WriteLine("buffer goin");
                             }
 
                             activeChannels[i] = triggerHigh;
                             if (refractoryChannels[i] > 0)
                             {
-                                Console.WriteLine("channel refractory");
                                 refractoryChannels[i]--;
                             }
                         }
@@ -172,7 +159,6 @@ public class SpikeDetector : Combinator<Mat, SpikeWaveformCollection>
 
     static SampleBuffer UpdateBuffer(SampleBuffer buffer, Mat source, int index, int delay, double threshold)
     {
-        Console.WriteLine("started update buffer");
         int samplesTaken = buffer.Update(source, index);
         if (buffer.Completed && !buffer.Refined)
         {
@@ -190,7 +176,6 @@ public class SpikeDetector : Combinator<Mat, SpikeWaveformCollection>
                 return offsetBuffer;
             }
         }
-        Console.WriteLine("updated buffer");
 
         return buffer;
     }

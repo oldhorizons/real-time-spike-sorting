@@ -40,7 +40,7 @@ public class SourceFromBin
         if (buffer.Length != NumChannels * BufferSize * 2) {
             return null;
         }
-        Mat mat = Mat.CreateMatHeader(buffer, NumChannels, BufferSize, Depth.S32, 1);
+        Mat mat = Mat.CreateMatHeader(buffer, NumChannels, BufferSize, Depth.S32, 1); //todo change back to S32 WORKS WITH U8
         return mat;
     }
 
