@@ -1,9 +1,11 @@
+import os
 from kilosort.utils import download_probes
 from kilosort import run_kilosort, DEFAULT_SETTINGS
 import time
 import shared.config as config
 import shared.logger as logger
 import pickle
+import numpy as np
 
 # CONFIG
 dataName = None
@@ -42,6 +44,10 @@ def many_kilosort(dataDirs):
             log.info(f"START: {data_name}")
             do_kilosort(data_dir, n_channels, probe_name, True)
             log.info(f"SUCCESS: {data_name}")
+            temp = np.load(data_dir + '/kilosort4/templates.npy')
+            os.mkdir(data_dir + '/kilosort4/templates')
+            for i, t  in enumerate(temp):
+                np.savetxt(data_dir + '/kilosort4/templates/t{i}.csv', t, delimiter=",")
         except Exception as e:
             log.exception(e)
  
