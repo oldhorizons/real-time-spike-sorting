@@ -50,6 +50,11 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:DebugDataTransform" />
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:LoadSpikeTemplates">
+          <p1:NumSamples>61</p1:NumSamples>
+        </Combinator>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />

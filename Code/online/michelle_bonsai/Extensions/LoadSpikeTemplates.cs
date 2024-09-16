@@ -18,6 +18,7 @@ public class LoadSpikeTemplates
     public string SourcePath { get; set; }
 
     [Description("Target templates")]
+    [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0")]
     [Category("Configuration")]
     public int[] TemplatesToTrack { get; set; }
 
@@ -35,7 +36,8 @@ public class LoadSpikeTemplates
             SpikeWaveform template = GetSingleChanSpikeWaveform(filename);
             templates.Add(template);
         }
-        SpikeWaveformCollection templateCollection = new SpikeWaveformCollection(templates, new Size(NumSamples,  TemplatesToTrack.Length));
+        SpikeWaveformCollection templateCollection = new SpikeWaveformCollection(
+            templates, new Size(NumSamples,  TemplatesToTrack.Length));
 
         return Observable.Return(templateCollection);
     }
