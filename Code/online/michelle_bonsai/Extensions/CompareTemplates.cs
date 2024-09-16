@@ -30,18 +30,97 @@ public class CompareTemplates
     [Category("Configuration")]
     public bool ConvertToU8 { get; set; }
 
-    [Description("Confidence required to accept a spike as matched (0-1)")]
+    [Description("Confidence required to accept a spike as matched (-1 to 1)")]
     [Category("Configuration")]
     public float SimilarityThreshold { get; set; }
 
-    public IObservable<SpikeWaveformCollection> Process(IObservable<SpikeWaveformCollection> source)
+    public IObservable<float> Process(IObservable<SpikeWaveformCollection> source)
     {
         SpikeWaveformCollection templates = LoadTemplates();
-        return source;
+        return Observable.Create<int>(observer => {
+            return source.Subscribe(AlignWaveforms => {
+                foreach (SpikeWaveform waveform in source.waveforms) {
+                    foreach (SpikeWaveform template in templates) {
+                        observer.OnNext(CosineSimilarity(waveform, templates));
+                    }
+        }})});
     }
 
-    private float GetSpikeSimilarity(SpikeWaveform source, SpikeWaveform template) {
-        return 0;
+    private float CosineSimilarity(SpikeWaveform source, SpikeWaveform template) {
+        if (Math.Abs(source.ChannelIndex - template.ChannelIndex)) > SimilarityThreshold) {
+            return -1;
+        }
+        // alt methods: 
+        // euclidean distance EW YUCK NO THANK YOU
+        // align, then cosine similarity (O(N)) - x dot y / magnitude(x) * magnitude(y) -> scale-invariant so robust to differences in amplitude
+        // cross-correlation - reasonably fast - argmax() - needs FFT methods
+        // Dynamic time warp[ing]
+        // https://stackoverflow.com/questions/20644599/similarity-between-two-signals-looking-for-simple-measure
+        AlignWaveforms(source, template);
+        float dotProduct = source.waveform.Zip(template.waveform, (d1, d2) => d1 * d2)
+                        .Sum();
+        float sMag, tMag;
+        sMag = tMag = 0;
+        foreach (int value in template.waveform) {
+            tMag += value * value;
+        }
+        foreach (int value in source.waveform) {
+            sMag += value * value;
+        }
+        tMag = Math.Sqrt(tMag);
+        sMag = Math.Sqrt(sMag);
+        return (dotProduct / (tMag * sMag));
+    }
+
+    private void AlignWaveforms(ref SpikeWaveform source, ref SpikeWaveform template) {
+        //initialise stuff
+        int sMax, tMax, sMin, tMin, sMaxI, tMaxI, sMinI, tMinI;
+        Mat sWav = source.waveform;
+        Mat tWav = template.waveform;
+        int lenDiff = sWav.Length - tWav.Length;
+        sMaxI = tMaxI = sMinI = tMinI = 0;
+        sMax = sMin = sWav[0];
+        tMax = tMin = tWav[0];
+        for (int i = 0; i < sWav.Length; i++) {
+            if (sWav[i] > sMax) {
+                sMax = sWav[i];
+                sMaxI = i;
+            }
+            if (sWav[i] < sMin) {
+                sMin = sWav[i];
+                sMinI = i;
+            }
+        }
+        for (int i = 0; i < tWav.Length; i++) {
+            if (tWav[i] > tMax) {
+                tMax = tWav[i];
+                tMaxI = i;
+            }
+            if (tWav[i] < tMin) {
+                tMin = tWav[i];
+                tMinI = i;
+            }
+        }
+        //todo because both are uint8_t the min won't matter but it could be handy for later so I'm keeping it?????
+        int shift = sMaxI - tMaxI;
+        lenDiff += shift;
+        if (shift > 0) {
+            // cut first [shift] off start of s
+            sWav = sWav[shift..];
+        } else if (shift < 0) {
+            // cut first [-shift] off start of t
+            tWav = tWav[-shift..];
+        }
+        if (lenDiff > 0) {
+            // cut last diff off t
+            tWav = tWav[..^lenDiff];
+        } else if (lenDiff < 0) {
+            // cut the last diff off s
+            sWav = sWav[..^-lenDiff];
+        }
+        //update spike waveforms
+        source.waveform = sWav;
+        template.waveform = tWav;
     }
 
     private SpikeWaveformCollection LoadTemplates()
