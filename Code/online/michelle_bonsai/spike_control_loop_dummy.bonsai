@@ -48,11 +48,16 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:DebugDataTransform" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:LoadSpikeTemplates">
+        <Combinator xsi:type="p1:CompareTemplates">
+          <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec/kilosort4/templates</p1:SourcePath>
+          <p1:TemplatesToTrack>
+            <p1:int>0</p1:int>
+            <p1:int>2</p1:int>
+            <p1:int>80</p1:int>
+          </p1:TemplatesToTrack>
           <p1:NumSamples>61</p1:NumSamples>
+          <p1:ConvertToU8>true</p1:ConvertToU8>
+          <p1:SimilarityThreshold>0.9</p1:SimilarityThreshold>
         </Combinator>
       </Expression>
     </Nodes>

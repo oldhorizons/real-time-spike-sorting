@@ -9,9 +9,9 @@ using System.IO;
 using Bonsai.Dsp;
 
 [Combinator]
-[Description("Loads the spike templates into a handy dandy spike template format")]
-[WorkflowElementCategory(ElementCategory.Source)]
-public class LoadSpikeTemplates
+[Description("Loads templates (todo clean this up) and compares them to the given channels")]
+[WorkflowElementCategory(ElementCategory.Combinator)]
+public class CompareTemplates
 {
     [Description("The path to the folder containing the template .csv files")]
     [Category("Configuration")]
@@ -28,13 +28,25 @@ public class LoadSpikeTemplates
 
     [Description("whether to convert the data in F32 format to UINT8 with scaling (to match data feed bit depth)")]
     [Category("Configuration")]
-    public bool ConvertToU8 {get; set; }
+    public bool ConvertToU8 { get; set; }
 
-    public IObservable<SpikeWaveformCollection> Process()
+    [Description("Confidence required to accept a spike as matched (0-1)")]
+    [Category("Configuration")]
+    public float SimilarityThreshold { get; set; }
+
+    public IObservable<SpikeWaveformCollection> Process(IObservable<SpikeWaveformCollection> source)
+    {
+        SpikeWaveformCollection templates = LoadTemplates();
+        return source;
+    }
+
+    private float GetSpikeSimilarity(SpikeWaveform source, SpikeWaveform template) {
+        return 0;
+    }
+
+    private SpikeWaveformCollection LoadTemplates()
     { 
         List<SpikeWaveform> templates = new List<SpikeWaveform>();
-        // int numTemplates = TemplatesToTrack.Length;
-        // byte[] templates = new byte[NumSamples * 4 * numTemplates];
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
             string filename = String.Format("{0}/t{1}.csv", SourcePath, TemplatesToTrack[i]);
             SpikeWaveform template = GetSingleChanWaveform(filename);
@@ -43,7 +55,7 @@ public class LoadSpikeTemplates
         SpikeWaveformCollection templateCollection = new SpikeWaveformCollection(
             templates, new Size(NumSamples,  TemplatesToTrack.Length));
 
-        return Observable.Return(templateCollection);
+        return templateCollection;
     }
 
     // Returns the matrix representation of all templates
