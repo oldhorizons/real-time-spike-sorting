@@ -30,25 +30,32 @@ public class CompareTemplates
     [Category("Configuration")]
     public bool ConvertToU8 { get; set; }
 
+    [Description("Channel closeness required to accept a spike as matched")]
+    [Category("Configuration")]
+    public float DistanceThreshold { get; set; }
+
     [Description("Confidence required to accept a spike as matched (-1 to 1)")]
     [Category("Configuration")]
     public float SimilarityThreshold { get; set; }
 
     public IObservable<float> Process(IObservable<SpikeWaveformCollection> source)
     {
-        SpikeWaveformCollection templates = LoadTemplates();
-        return Observable.Create<int>(observer => {
-            return source.Subscribe(AlignWaveforms => {
-                foreach (SpikeWaveform waveform in source.waveforms) {
+        List<SpikeWaveform> templates = LoadTemplates();
+        Console.WriteLine("TEMPLATES LOADED");
+        return Observable.Create<float>(observer => {
+            return source.Subscribe(waveforms => {
+                foreach (SpikeWaveform waveform in waveforms) {
                     foreach (SpikeWaveform template in templates) {
-                        observer.OnNext(CosineSimilarity(waveform, templates));
+                        observer.OnNext(CosineSimilarity(template, waveform));
                     }
-        }})});
+                }
+            });
+        });
     }
 
     private float CosineSimilarity(SpikeWaveform source, SpikeWaveform template) {
-        if (Math.Abs(source.ChannelIndex - template.ChannelIndex)) > SimilarityThreshold) {
-            return -1;
+        if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > SimilarityThreshold) {
+            return -1f;
         }
         // alt methods: 
         // euclidean distance EW YUCK NO THANK YOU
@@ -56,74 +63,102 @@ public class CompareTemplates
         // cross-correlation - reasonably fast - argmax() - needs FFT methods
         // Dynamic time warp[ing]
         // https://stackoverflow.com/questions/20644599/similarity-between-two-signals-looking-for-simple-measure
-        AlignWaveforms(source, template);
-        float dotProduct = source.waveform.Zip(template.waveform, (d1, d2) => d1 * d2)
-                        .Sum();
-        float sMag, tMag;
+        AlignWaveforms(ref source, ref template);
+        int max = source.Waveform.Cols;
+        Console.WriteLine("Num Cols: {0}", max);
+        double dotProduct = 0;
+        double sMag, tMag;
         sMag = tMag = 0;
-        foreach (int value in template.waveform) {
-            tMag += value * value;
-        }
-        foreach (int value in source.waveform) {
-            sMag += value * value;
+        Mat halfDot = source.Waveform * template.Waveform;
+        source.Waveform *= source.Waveform;
+        template.Waveform *= template.Waveform;
+        for (int i = 0; i < max; i++) {
+            dotProduct += halfDot[i].Val0;
+            tMag += template.Waveform[i].Val0;
+            sMag += source.Waveform[i].Val0;
         }
         tMag = Math.Sqrt(tMag);
         sMag = Math.Sqrt(sMag);
-        return (dotProduct / (tMag * sMag));
+        return (float)(dotProduct / (tMag * sMag));
     }
 
     private void AlignWaveforms(ref SpikeWaveform source, ref SpikeWaveform template) {
         //initialise stuff
-        int sMax, tMax, sMin, tMin, sMaxI, tMaxI, sMinI, tMinI;
-        Mat sWav = source.waveform;
-        Mat tWav = template.waveform;
-        int lenDiff = sWav.Length - tWav.Length;
+        double sMax, tMax, sMin, tMin;
+        int sMaxI, tMaxI, sMinI, tMinI;
+        Mat sWav = source.Waveform;
+        Mat tWav = template.Waveform;
+        int lenDiff = sWav.Cols - tWav.Cols;
         sMaxI = tMaxI = sMinI = tMinI = 0;
-        sMax = sMin = sWav[0];
-        tMax = tMin = tWav[0];
-        for (int i = 0; i < sWav.Length; i++) {
-            if (sWav[i] > sMax) {
-                sMax = sWav[i];
+        sMax = sMin = sWav[0].Val0;
+        tMax = tMin = tWav[0].Val0;
+        for (int i = 0; i < sWav.Cols; i++) {
+            if (sWav[i].Val0 > sMax) {
+                sMax = sWav[i].Val0;
                 sMaxI = i;
-            }
-            if (sWav[i] < sMin) {
-                sMin = sWav[i];
+            } 
+            else if (sWav[i].Val0 < sMin) {
+                sMin = sWav[i].Val0;
                 sMinI = i;
             }
         }
-        for (int i = 0; i < tWav.Length; i++) {
-            if (tWav[i] > tMax) {
-                tMax = tWav[i];
+        for (int i = 0; i < tWav.Cols; i++) {
+            if (tWav[i].Val0 > tMax) {
+                tMax = tWav[i].Val0;
                 tMaxI = i;
-            }
-            if (tWav[i] < tMin) {
-                tMin = tWav[i];
+            } 
+            else if (tWav[i].Val0 < tMin) {
+                tMin = tWav[i].Val0;
                 tMinI = i;
             }
         }
         //todo because both are uint8_t the min won't matter but it could be handy for later so I'm keeping it?????
-        int shift = sMaxI - tMaxI;
-        lenDiff += shift;
-        if (shift > 0) {
-            // cut first [shift] off start of s
-            sWav = sWav[shift..];
-        } else if (shift < 0) {
-            // cut first [-shift] off start of t
-            tWav = tWav[-shift..];
+        int offset = sMaxI - tMaxI;
+        lenDiff += offset;
+        int sOff = offset > 0 ? offset : 0;
+        int tOff = offset < 0 ? -offset : 0;
+        int sCut = lenDiff < 0 ? -lenDiff : 0;
+        int tCut = lenDiff > 0 ? lenDiff : 0;
+
+        source.Waveform = ShortenMat(sWav, sOff, sCut);
+        template.Waveform = ShortenMat(tWav, tOff, tCut);
+
+        // if (offset > 0) {
+        //     // cut first [shift] off start of s
+        //     int cutoff = lenDiff < 0 ? 
+        //     double[] newSWav = new double[sWav.Cols - offset];
+        //     for (int i = 0; i < sWav.Cols - offset; i++) {
+        //         newSWav[i] = sWav[i + offset].Val0;
+        //     }
+        //     sWav = sWav[offset;
+        // } else if (offset < 0) {
+        //     // cut first [-shift] off start of t
+        //     tWav = tWav[-offset..];
+        // }
+        // if (lenDiff > 0) {
+        //     // cut last diff off t
+        //     tWav = tWav[..^lenDiff];
+        // } else if (lenDiff < 0) {
+        //     // cut the last diff off s
+        // }
+        // //update spike waveforms
+        // source.Waveform = sWav;
+        // template.Waveform = tWav;
+    }
+    
+    private Mat ShortenMat(Mat source, int start, int end) {
+        int newLen = source.Cols - (start + end);
+        if (newLen == source.Cols) {
+            return source;
         }
-        if (lenDiff > 0) {
-            // cut last diff off t
-            tWav = tWav[..^lenDiff];
-        } else if (lenDiff < 0) {
-            // cut the last diff off s
-            sWav = sWav[..^-lenDiff];
+        double[] newWav = new double[newLen];
+        for (int i = 0; i < newLen; i++) {
+            newWav[i] = source[i + start].Val0;
         }
-        //update spike waveforms
-        source.waveform = sWav;
-        template.waveform = tWav;
+        return Mat.CreateMatHeader(newWav);
     }
 
-    private SpikeWaveformCollection LoadTemplates()
+    private List<SpikeWaveform> LoadTemplates()
     { 
         List<SpikeWaveform> templates = new List<SpikeWaveform>();
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
@@ -131,10 +166,10 @@ public class CompareTemplates
             SpikeWaveform template = GetSingleChanWaveform(filename);
             templates.Add(template);
         }
-        SpikeWaveformCollection templateCollection = new SpikeWaveformCollection(
-            templates, new Size(NumSamples,  TemplatesToTrack.Length));
+        // SpikeWaveformCollection templateCollection = new SpikeWaveformCollection(
+        //     templates, new Size(NumSamples,  TemplatesToTrack.Length));
 
-        return templateCollection;
+        return templates;
     }
 
     // Returns the matrix representation of all templates

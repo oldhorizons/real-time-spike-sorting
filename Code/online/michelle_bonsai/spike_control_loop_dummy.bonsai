@@ -17,7 +17,7 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="dsp:SelectChannels">
           <dsp:Channels>
-            <dsp:int>1</dsp:int>
+            <dsp:int>12</dsp:int>
           </dsp:Channels>
         </Combinator>
       </Expression>
@@ -25,15 +25,15 @@
         <Combinator xsi:type="dsp:Butterworth">
           <dsp:SampleRate>30000</dsp:SampleRate>
           <dsp:Cutoff1>500</dsp:Cutoff1>
-          <dsp:Cutoff2>5000</dsp:Cutoff2>
+          <dsp:Cutoff2>0</dsp:Cutoff2>
           <dsp:FilterOrder>3</dsp:FilterOrder>
-          <dsp:FilterType>BandPass</dsp:FilterType>
+          <dsp:FilterType>HighPass</dsp:FilterType>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="dsp:ConvertScale">
-          <dsp:Depth>U8</dsp:Depth>
-          <dsp:Scale>4.25E-05</dsp:Scale>
+          <dsp:Depth>F32</dsp:Depth>
+          <dsp:Scale>1</dsp:Scale>
           <dsp:Shift>0</dsp:Shift>
         </Combinator>
       </Expression>
@@ -42,7 +42,7 @@
           <p1:Delay>20</p1:Delay>
           <p1:Length>60</p1:Length>
           <p1:Threshold>
-            <p1:double>-100</p1:double>
+            <p1:double>-5162579.63610985</p1:double>
           </p1:Threshold>
           <p1:WaveformRefinement>AlignPeaks</p1:WaveformRefinement>
         </Combinator>
@@ -52,12 +52,12 @@
           <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec/kilosort4/templates</p1:SourcePath>
           <p1:TemplatesToTrack>
             <p1:int>0</p1:int>
-            <p1:int>2</p1:int>
-            <p1:int>80</p1:int>
+            <p1:int>1</p1:int>
           </p1:TemplatesToTrack>
-          <p1:NumSamples>61</p1:NumSamples>
+          <p1:NumSamples>60</p1:NumSamples>
           <p1:ConvertToU8>true</p1:ConvertToU8>
-          <p1:SimilarityThreshold>0.9</p1:SimilarityThreshold>
+          <p1:DistanceThreshold>5</p1:DistanceThreshold>
+          <p1:SimilarityThreshold>0</p1:SimilarityThreshold>
         </Combinator>
       </Expression>
     </Nodes>
