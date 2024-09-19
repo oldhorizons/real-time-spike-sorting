@@ -54,16 +54,26 @@ public class CompareTemplates
     [Category("Configuration")]
     public float SimilarityThreshold { get; set; }
 
-    public IObservable<bool> Process(IObservable<SpikeWaveformCollection> source)
+    public class SpikeComparer {
+        public Mat template {get; set;}
+        public Mat source {get; set;}
+        public float similarity {get; set;}
+    }
+
+    public IObservable<SpikeComparer> Process(IObservable<SpikeWaveformCollection> source)
     {
         List<SpikeWaveform> templates = LoadTemplates();
         Console.WriteLine("TEMPLATES LOADED");
-        return Observable.Create<bool>(observer => {
+        return Observable.Create<SpikeComparer>(observer => {
             return source.Subscribe(waveforms => {
                 foreach (SpikeWaveform waveform in waveforms) {
                     foreach (SpikeWaveform template in templates) {
                         observer.OnNext(
-                            SimilarityMeasure(waveform, template) > SimilarityThreshold);
+                            new SpikeComparer() {
+                                template = template.Waveform,
+                                source = waveform.Waveform,
+                                similarity = SimilarityMeasure(waveform, template)
+                        });
                     }
                 }
             });
@@ -84,33 +94,34 @@ public class CompareTemplates
         // if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > SimilarityThreshold) {
         //     return -1f;
         // }
-        AlignWaveforms(ref source, ref template);
-        int max = source.Waveform.Cols;
+        Mat sWav = source.Waveform.Clone();
+        Mat tWav = template.Waveform.Clone();
+        AlignWaveforms(ref sWav, ref tWav);
+        int max = sWav.Cols;
         Console.WriteLine("Num Cols: {0}", max);
         double dotProduct = 0;
         double sMag, tMag;
         sMag = tMag = 0;
-        Mat halfDot = source.Waveform * template.Waveform;
-        source.Waveform *= source.Waveform;
-        template.Waveform *= template.Waveform;
+        Mat halfDot = sWav * tWav;
+        sWav *= sWav;
+        tWav *= tWav;
         for (int i = 0; i < max; i++) {
             dotProduct += halfDot[i].Val0;
-            tMag += template.Waveform[i].Val0;
-            sMag += source.Waveform[i].Val0;
+            tMag += tWav[i].Val0;
+            sMag += sWav[i].Val0;
         }
         tMag = Math.Sqrt(tMag);
         sMag = Math.Sqrt(sMag);
         float cosineSimilarity = (float)(dotProduct / (tMag * sMag));
-        Console.WriteLine(cosineSimilarity.ToString());
+        Console.WriteLine("dotProduct: {0}, tMag: {1}, sMag: {2}, cosineSim: {3}", 
+                dotProduct, tMag, sMag, cosineSimilarity);
         return cosineSimilarity;
     }
 
-    private void AlignWaveforms(ref SpikeWaveform source, ref SpikeWaveform template) {
+    private void AlignWaveforms(ref Mat sWav, ref Mat tWav) {
         //initialise stuff
         double sMax, tMax, sMin, tMin;
         int sMaxI, tMaxI, sMinI, tMinI;
-        Mat sWav = source.Waveform;
-        Mat tWav = template.Waveform;
         int lenDiff = sWav.Cols - tWav.Cols;
         sMaxI = tMaxI = sMinI = tMinI = 0;
         sMax = sMin = sWav[0].Val0;
@@ -146,8 +157,8 @@ public class CompareTemplates
         Console.WriteLine("sCols: {0}, sMaxI: {1}, sOff: {2}, sCut: {3} | tCols: {4}, tMaxI: {5}, tOff: {6}, tCut: {7}",
                             sWav.Cols, sMaxI, sOff, sCut, tWav.Cols, tMaxI, tOff, tCut);
 
-        source.Waveform = ShortenMat(sWav, sOff, sCut);
-        template.Waveform = ShortenMat(tWav, tOff, tCut);
+        sWav = ShortenMat(sWav, sOff, sCut);
+        tWav = ShortenMat(tWav, tOff, tCut);
     }
     
     private Mat ShortenMat(Mat source, int start, int end) {
@@ -174,11 +185,12 @@ public class CompareTemplates
     }
 
     // Returns the matrix representation of a template as a 1-d Mat file
+    // todo add a way to track multiple channels? 
     private SpikeWaveform GetSingleChanWaveform(string filename)
     {
         int numChannels = 0;
-        float[] chanMax = new float[0];
-        int[] chanMaxIndex = new int[0];
+        float[] chanMax = new float[1];
+        int[] chanMaxIndex = new int[1];
         List<List<float>> floats = new List<List<float>>();
 
         using(StreamReader reader = new StreamReader(filename))
@@ -201,10 +213,10 @@ public class CompareTemplates
                 }
                 //update channel maximums
                 for (int i = 0; i < numChannels; i++) {
-                    if (floatLine[i] > chanMax[i]) {
+                    if (Math.Abs(floatLine[i]) > chanMax[i]) {
                         chanMaxIndex[i] = j;
+                        chanMax[i] = Math.Abs(floatLine[i]);
                     }
-                    chanMax[i] = Math.Max(Math.Abs(floatLine[i]), chanMax[i]);
                 }
                 floats.Add(floatLine);
                 j++;
@@ -213,18 +225,18 @@ public class CompareTemplates
         float maxValue = chanMax.Max();
         int maxIndex = chanMax.ToList().IndexOf(maxValue);
 
-        //TODO: add an option to track multiple channels for this
-        byte[] buffer = new byte[NumSamples * 4];
-        System.Buffer.BlockCopy(floats[maxIndex].ToArray(),  0, buffer, 0, NumSamples * 4);
-        Mat waveform = Mat.CreateMatHeader(buffer, 1, NumSamples, Depth.S32, 1);
-
-        if (ConvertToU8) {
-            Mat mat2 = new Mat(waveform.Rows, waveform.Cols, Depth.U8, 1);
-            CV.ConvertScaleAbs(waveform, mat2, 0.0000425);
-            waveform = mat2;
+        float[] buffer = new float[NumSamples];
+        for (int i = 0; i < NumSamples; i++) {
+            buffer[i] = floats[maxIndex][i];
         }
 
-        // return waveform;
+        Mat waveform = Mat.FromArray(buffer);
+
+        // if (ConvertToU8) {
+        //     Mat mat2 = new Mat(waveform.Rows, waveform.Cols, Depth.U8, 1);
+        //     CV.ConvertScaleAbs(waveform, mat2, 0.0000425);
+        //     waveform = mat2;
+        // }
 
         return new SpikeWaveform{
             ChannelIndex = maxIndex,

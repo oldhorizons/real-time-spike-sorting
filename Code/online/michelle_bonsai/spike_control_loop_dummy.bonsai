@@ -49,6 +49,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:CompareTemplates">
+          <p1:comparisonMethod>Cosine</p1:comparisonMethod>
           <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec/kilosort4/templates</p1:SourcePath>
           <p1:TemplatesToTrack>
             <p1:int>0</p1:int>
@@ -60,6 +61,15 @@
           <p1:SimilarityThreshold>0</p1:SimilarityThreshold>
         </Combinator>
       </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>template</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>source</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>similarity</Selector>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
@@ -67,6 +77,9 @@
       <Edge From="2" To="3" Label="Source1" />
       <Edge From="3" To="4" Label="Source1" />
       <Edge From="4" To="5" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="5" To="7" Label="Source1" />
+      <Edge From="5" To="8" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
