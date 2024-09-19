@@ -34,6 +34,7 @@ public class CompareTemplates
     public string SourcePath { get; set; }
 
     [Description("Target templates")]
+    [TypeConverter(typeof(UnidimensionalArrayConverter))]
     [Editor("Bonsai.Dsp.Design.SelectChannelEditor, Bonsai.Dsp.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0")]
     [Category("Configuration")]
     public int[] TemplatesToTrack { get; set; }
@@ -68,11 +69,13 @@ public class CompareTemplates
             return source.Subscribe(waveforms => {
                 foreach (SpikeWaveform waveform in waveforms) {
                     foreach (SpikeWaveform template in templates) {
+                        Mat sWav = waveform.Waveform.Clone();
+                        Mat tWav = template.Waveform.Clone(); 
                         observer.OnNext(
                             new SpikeComparer() {
-                                template = template.Waveform,
-                                source = waveform.Waveform,
-                                similarity = SimilarityMeasure(waveform, template)
+                                template = tWav,
+                                source = sWav,
+                                similarity = SimilarityMeasure(sWav, tWav)
                         });
                     }
                 }
@@ -80,7 +83,7 @@ public class CompareTemplates
         });
     }
 
-    private float SimilarityMeasure(SpikeWaveform source, SpikeWaveform template) {
+    private float SimilarityMeasure(Mat source, Mat template) {
         Console.WriteLine("GOT ONE");
         return CosineSimilarity(source, template);
         // switch (comparisonMethod) {
@@ -90,12 +93,10 @@ public class CompareTemplates
         // }
     }
 
-    private float CosineSimilarity(SpikeWaveform source, SpikeWaveform template) {
+    private float CosineSimilarity(Mat sWav, Mat tWav) {
         // if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > SimilarityThreshold) {
         //     return -1f;
         // }
-        Mat sWav = source.Waveform.Clone();
-        Mat tWav = template.Waveform.Clone();
         AlignWaveforms(ref sWav, ref tWav);
         int max = sWav.Cols;
         Console.WriteLine("Num Cols: {0}", max);
@@ -225,8 +226,32 @@ public class CompareTemplates
         float maxValue = chanMax.Max();
         int maxIndex = chanMax.ToList().IndexOf(maxValue);
 
-        float[] buffer = new float[NumSamples];
+
+        // cut off the leading and trailing zeroes because you don't want to try to match a flat line
+        int offset = 0;
+        int end = NumSamples;
         for (int i = 0; i < NumSamples; i++) {
+            if (floats[maxIndex][i] != 0) {
+                break;
+            } else {
+                offset++;
+            }
+        }
+        for (int i = NumSamples; i > 0; i--) {
+            if (floats[maxIndex][i] != 0) {
+                break;
+            } else {
+                end--;
+            }
+        }
+
+        //add a LITTLE buffer of zeroes
+        offset = Math.Max(0, offset - 2);
+        end = Math.Min(NumSamples, end + 2);
+
+        // get the channel info at each sample
+        float[] buffer = new float[NumSamples];
+        for (int i = offset; i < end; i++) {
             buffer[i] = floats[maxIndex][i];
         }
 
@@ -238,6 +263,8 @@ public class CompareTemplates
         //     waveform = mat2;
         // }
 
+
+        // return waveform
         return new SpikeWaveform{
             ChannelIndex = maxIndex,
             SampleIndex = 0,
