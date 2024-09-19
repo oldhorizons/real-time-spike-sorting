@@ -13,6 +13,22 @@ using Bonsai.Dsp;
 [WorkflowElementCategory(ElementCategory.Combinator)]
 public class CompareTemplates
 {
+    // alt methods: 
+    // euclidean distance EW YUCK NO THANK YOU
+    // align, then cosine similarity (O(N)) - x dot y / magnitude(x) * magnitude(y) -> scale-invariant so robust to differences in amplitude
+    // cross-correlation - reasonably fast - argmax() - needs FFT methods
+    // Dynamic time warp[ing]
+    // https://stackoverflow.com/questions/20644599/similarity-between-two-signals-looking-for-simple-measure
+    public enum ComparisonMethod {
+        Cosine,
+        CrossCor,
+        Dtw
+    }
+
+    [Description("The method to use to compare")]
+    [Category("Configuration")]
+    public ComparisonMethod comparisonMethod;
+
     [Description("The path to the folder containing the template .csv files")]
     [Category("Configuration")]
     public string SourcePath { get; set; }
@@ -38,31 +54,36 @@ public class CompareTemplates
     [Category("Configuration")]
     public float SimilarityThreshold { get; set; }
 
-    public IObservable<float> Process(IObservable<SpikeWaveformCollection> source)
+    public IObservable<bool> Process(IObservable<SpikeWaveformCollection> source)
     {
         List<SpikeWaveform> templates = LoadTemplates();
         Console.WriteLine("TEMPLATES LOADED");
-        return Observable.Create<float>(observer => {
+        return Observable.Create<bool>(observer => {
             return source.Subscribe(waveforms => {
                 foreach (SpikeWaveform waveform in waveforms) {
                     foreach (SpikeWaveform template in templates) {
-                        observer.OnNext(CosineSimilarity(template, waveform));
+                        observer.OnNext(
+                            SimilarityMeasure(waveform, template) > SimilarityThreshold);
                     }
                 }
             });
         });
     }
 
+    private float SimilarityMeasure(SpikeWaveform source, SpikeWaveform template) {
+        Console.WriteLine("GOT ONE");
+        return CosineSimilarity(source, template);
+        // switch (comparisonMethod) {
+        //     case (ComparisonMethod.Cosine) {
+        //         return CosineSimilarity(source, template);
+        //     }
+        // }
+    }
+
     private float CosineSimilarity(SpikeWaveform source, SpikeWaveform template) {
-        if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > SimilarityThreshold) {
-            return -1f;
-        }
-        // alt methods: 
-        // euclidean distance EW YUCK NO THANK YOU
-        // align, then cosine similarity (O(N)) - x dot y / magnitude(x) * magnitude(y) -> scale-invariant so robust to differences in amplitude
-        // cross-correlation - reasonably fast - argmax() - needs FFT methods
-        // Dynamic time warp[ing]
-        // https://stackoverflow.com/questions/20644599/similarity-between-two-signals-looking-for-simple-measure
+        // if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > SimilarityThreshold) {
+        //     return -1f;
+        // }
         AlignWaveforms(ref source, ref template);
         int max = source.Waveform.Cols;
         Console.WriteLine("Num Cols: {0}", max);
@@ -79,7 +100,9 @@ public class CompareTemplates
         }
         tMag = Math.Sqrt(tMag);
         sMag = Math.Sqrt(sMag);
-        return (float)(dotProduct / (tMag * sMag));
+        float cosineSimilarity = (float)(dotProduct / (tMag * sMag));
+        Console.WriteLine(cosineSimilarity.ToString());
+        return cosineSimilarity;
     }
 
     private void AlignWaveforms(ref SpikeWaveform source, ref SpikeWaveform template) {
@@ -114,36 +137,17 @@ public class CompareTemplates
         }
         //todo because both are uint8_t the min won't matter but it could be handy for later so I'm keeping it?????
         int offset = sMaxI - tMaxI;
-        lenDiff += offset;
+        lenDiff -= offset;
         int sOff = offset > 0 ? offset : 0;
         int tOff = offset < 0 ? -offset : 0;
-        int sCut = lenDiff < 0 ? -lenDiff : 0;
-        int tCut = lenDiff > 0 ? lenDiff : 0;
+        int sCut = lenDiff > 0 ? lenDiff : 0;
+        int tCut = lenDiff < 0 ? -lenDiff : 0;
+        Console.WriteLine("lenDiff: {0}, offset: {1}", lenDiff, offset);
+        Console.WriteLine("sCols: {0}, sMaxI: {1}, sOff: {2}, sCut: {3} | tCols: {4}, tMaxI: {5}, tOff: {6}, tCut: {7}",
+                            sWav.Cols, sMaxI, sOff, sCut, tWav.Cols, tMaxI, tOff, tCut);
 
         source.Waveform = ShortenMat(sWav, sOff, sCut);
         template.Waveform = ShortenMat(tWav, tOff, tCut);
-
-        // if (offset > 0) {
-        //     // cut first [shift] off start of s
-        //     int cutoff = lenDiff < 0 ? 
-        //     double[] newSWav = new double[sWav.Cols - offset];
-        //     for (int i = 0; i < sWav.Cols - offset; i++) {
-        //         newSWav[i] = sWav[i + offset].Val0;
-        //     }
-        //     sWav = sWav[offset;
-        // } else if (offset < 0) {
-        //     // cut first [-shift] off start of t
-        //     tWav = tWav[-offset..];
-        // }
-        // if (lenDiff > 0) {
-        //     // cut last diff off t
-        //     tWav = tWav[..^lenDiff];
-        // } else if (lenDiff < 0) {
-        //     // cut the last diff off s
-        // }
-        // //update spike waveforms
-        // source.Waveform = sWav;
-        // template.Waveform = tWav;
     }
     
     private Mat ShortenMat(Mat source, int start, int end) {
@@ -162,18 +166,14 @@ public class CompareTemplates
     { 
         List<SpikeWaveform> templates = new List<SpikeWaveform>();
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
-            string filename = String.Format("{0}/t{1}.csv", SourcePath, TemplatesToTrack[i]);
+            string filename = String.Format("{0}/t{1}.txt", SourcePath, TemplatesToTrack[i]); //TODO CSV
             SpikeWaveform template = GetSingleChanWaveform(filename);
             templates.Add(template);
         }
-        // SpikeWaveformCollection templateCollection = new SpikeWaveformCollection(
-        //     templates, new Size(NumSamples,  TemplatesToTrack.Length));
-
         return templates;
     }
 
-    // Returns the matrix representation of all templates
-    // as a single Mat, where each row in the mat file is the max. channel of the template
+    // Returns the matrix representation of a template as a 1-d Mat file
     private SpikeWaveform GetSingleChanWaveform(string filename)
     {
         int numChannels = 0;
