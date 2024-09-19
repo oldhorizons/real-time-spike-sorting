@@ -55,27 +55,27 @@ public class CompareTemplates
     [Category("Configuration")]
     public float SimilarityThreshold { get; set; }
 
+    // so I can output more than one thing, for visualisation purposes.
     public class SpikeComparer {
         public Mat template {get; set;}
         public Mat source {get; set;}
         public float similarity {get; set;}
+        public int accepted {get; set;}
     }
 
     public IObservable<SpikeComparer> Process(IObservable<SpikeWaveformCollection> source)
     {
-        List<SpikeWaveform> templates = LoadTemplates();
+        List<SpikeTemplate> templates = LoadTemplates();
         Console.WriteLine("TEMPLATES LOADED");
         return Observable.Create<SpikeComparer>(observer => {
             return source.Subscribe(waveforms => {
                 foreach (SpikeWaveform waveform in waveforms) {
-                    foreach (SpikeWaveform template in templates) {
-                        Mat sWav = waveform.Waveform.Clone();
-                        Mat tWav = template.Waveform.Clone(); 
+                    foreach (SpikeTemplate template in templates) {
                         observer.OnNext(
                             new SpikeComparer() {
-                                template = tWav,
-                                source = sWav,
-                                similarity = SimilarityMeasure(sWav, tWav)
+                                template = template.Waveform,
+                                source = waveform.Waveform,
+                                similarity = SimilarityMeasure(waveform.Waveform, template),
                         });
                     }
                 }
@@ -83,9 +83,9 @@ public class CompareTemplates
         });
     }
 
-    private float SimilarityMeasure(Mat source, Mat template) {
-        Console.WriteLine("GOT ONE");
-        return CosineSimilarity(source, template);
+    private float SimilarityMeasure(Mat source, SpikeTemplate template) {
+        //DO NOT pass un-cloned template waveforms through any of the functions below.
+        return CosineSimilarity(source, template.Waveform.Clone(), template.AlignMax);
         // switch (comparisonMethod) {
         //     case (ComparisonMethod.Cosine) {
         //         return CosineSimilarity(source, template);
@@ -93,11 +93,11 @@ public class CompareTemplates
         // }
     }
 
-    private float CosineSimilarity(Mat sWav, Mat tWav) {
-        // if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > SimilarityThreshold) {
+    private float CosineSimilarity(Mat sWav, Mat tWav, bool alignMax) {
+        // if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > DistanceThreshold) {
         //     return -1f;
         // }
-        AlignWaveforms(ref sWav, ref tWav);
+        AlignWaveforms(ref sWav, ref tWav, alignMax);
         int max = sWav.Cols;
         Console.WriteLine("Num Cols: {0}", max);
         double dotProduct = 0;
@@ -119,7 +119,7 @@ public class CompareTemplates
         return cosineSimilarity;
     }
 
-    private void AlignWaveforms(ref Mat sWav, ref Mat tWav) {
+    private void AlignWaveforms(ref Mat sWav, ref Mat tWav, bool alignMax) {
         //initialise stuff
         double sMax, tMax, sMin, tMin;
         int sMaxI, tMaxI, sMinI, tMinI;
@@ -147,8 +147,8 @@ public class CompareTemplates
                 tMinI = i;
             }
         }
-        //todo because both are uint8_t the min won't matter but it could be handy for later so I'm keeping it?????
-        int offset = sMaxI - tMaxI;
+        //align either highest or lowest point, depending on template
+        int offset = alignMax ? sMaxI - tMaxI : sMinI - tMinI;
         lenDiff -= offset;
         int sOff = offset > 0 ? offset : 0;
         int tOff = offset < 0 ? -offset : 0;
@@ -174,12 +174,12 @@ public class CompareTemplates
         return Mat.CreateMatHeader(newWav);
     }
 
-    private List<SpikeWaveform> LoadTemplates()
+    private List<SpikeTemplate> LoadTemplates()
     { 
-        List<SpikeWaveform> templates = new List<SpikeWaveform>();
+        List<SpikeTemplate> templates = new List<SpikeTemplate>();
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
             string filename = String.Format("{0}/t{1}.txt", SourcePath, TemplatesToTrack[i]); //TODO CSV
-            SpikeWaveform template = GetSingleChanWaveform(filename);
+            SpikeTemplate template = GetSingleChanWaveform(filename);
             templates.Add(template);
         }
         return templates;
@@ -187,7 +187,7 @@ public class CompareTemplates
 
     // Returns the matrix representation of a template as a 1-d Mat file
     // todo add a way to track multiple channels? 
-    private SpikeWaveform GetSingleChanWaveform(string filename)
+    private SpikeTemplate GetSingleChanWaveform(string filename)
     {
         int numChannels = 0;
         float[] chanMax = new float[1];
@@ -257,18 +257,16 @@ public class CompareTemplates
 
         Mat waveform = Mat.FromArray(buffer);
 
-        // if (ConvertToU8) {
-        //     Mat mat2 = new Mat(waveform.Rows, waveform.Cols, Depth.U8, 1);
-        //     CV.ConvertScaleAbs(waveform, mat2, 0.0000425);
-        //     waveform = mat2;
-        // }
-
-
         // return waveform
-        return new SpikeWaveform{
+        return new SpikeTemplate{
             ChannelIndex = maxIndex,
             SampleIndex = 0,
             Waveform = waveform,
+            AlignMax = buffer.Contains(maxValue)
         };
+    }
+
+    protected class SpikeTemplate : SpikeWaveform {
+        public bool AlignMax {get; set;}
     }
 }
