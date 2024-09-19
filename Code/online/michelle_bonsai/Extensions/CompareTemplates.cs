@@ -211,11 +211,11 @@ public class CompareTemplates
             string filename = String.Format("{0}/t{1}.txt", SourcePath, TemplatesToTrack[i]); //TODO CSV
             SpikeTemplate template = GetSingleChanWaveform(filename);
             templates.Add(template);
-            consoleMessage.Append("Template {0} chan: {1}", TemplatesToTrack[i], template.ChannelIndex);
+            consoleMessage.AppendFormat("Template {0} chan: {1}", TemplatesToTrack[i], template.ChannelIndex);
             if (i != TemplatesToTrack.Length - 1) {
                 consoleMessage.Append("\n");
             }
-            shortConsoleMessage.Append("T{0}C{1} ", TemplatesToTrack[i], template.ChannelIndex);
+            shortConsoleMessage.AppendFormat("T{0}C{1} ", TemplatesToTrack[i], template.ChannelIndex);
         }
         Console.WriteLine(shortConsoleMessage.ToString());
         return templates;
