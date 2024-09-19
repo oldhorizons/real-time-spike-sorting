@@ -215,7 +215,7 @@ public class CompareTemplates
             if (i != TemplatesToTrack.Length - 1) {
                 consoleMessage.Append("\n");
             }
-            shortConsoleMessage.Append("T{0}C{1} ");
+            shortConsoleMessage.Append("T{0}C{1} ", TemplatesToTrack[i], template.ChannelIndex);
         }
         Console.WriteLine(shortConsoleMessage.ToString());
         return templates;
