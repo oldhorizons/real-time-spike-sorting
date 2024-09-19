@@ -26,9 +26,9 @@ public class CompareTemplates
         Dtw
     }
 
-    //todo additional preprocessing - normalisation / centering?
     [Description("The method to use to compare")]
-    public ComparisonMethod comparisonMethod;
+    [Category("Configuration")]
+    public ComparisonMethod comparisonMethod { get; set; }
 
     [Description("The path to the folder containing the template .csv files")]
     [Category("Configuration")]
@@ -40,10 +40,9 @@ public class CompareTemplates
     [Category("Configuration")]
     public int[] TemplatesToTrack { get; set; }
 
-
-    [Description("whether to convert the data in F32 format to UINT8 with scaling (to match data feed bit depth)")]
-    [Category("Configuration")]
-    public bool ConvertToU8 { get; set; }
+    // [Description("whether to convert the data in F32 format to UINT8 with scaling (to match data feed bit depth)")]
+    // [Category("Configuration")]
+    // public bool ConvertToU8 { get; set; }
 
     [Description("Channel closeness required to accept a spike as matched")]
     [Category("Configuration")]

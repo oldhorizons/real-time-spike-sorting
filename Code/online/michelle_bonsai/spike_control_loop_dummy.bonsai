@@ -55,8 +55,6 @@
             <p1:int>0</p1:int>
             <p1:int>1</p1:int>
           </p1:TemplatesToTrack>
-          <p1:NumSamples>60</p1:NumSamples>
-          <p1:ConvertToU8>true</p1:ConvertToU8>
           <p1:DistanceThreshold>5</p1:DistanceThreshold>
           <p1:SimilarityThreshold>0</p1:SimilarityThreshold>
         </Combinator>
