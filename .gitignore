@@ -42,3 +42,4 @@ Code/online/david_bonsai/output/
 **/bin/
 **/obj/
 */Bonsai.Examples*
+*.vs/
