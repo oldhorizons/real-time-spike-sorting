@@ -273,6 +273,7 @@ public class CompareTemplates
         //         offset++;
         //     }
         // }
+        // NB IF YOU ADD THIS BACK THE BELOW DOESN'T TAKE ABOVE LENGTH CHANGE INTO ACCOUNT
         // for (int i = numSamples; i > 0; i--) {
         //     if (floats[i][maxIndex] != 0) {
         //         break;
