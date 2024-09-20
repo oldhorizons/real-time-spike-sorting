@@ -61,7 +61,7 @@ namespace Test {
 
         public ComparisonMethod comparisonMethod;
         public string SourcePath { get; set; } = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec/kilosort4/templates";
-        public int[] TemplatesToTrack { get; set; } = new int[]{1, 2};
+        public int[] TemplatesToTrack { get; set; } = new int[]{30};
         public int NumSamples { get; set; } = 61;
         public bool ConvertToU8 { get; set; } = false;
         public float DistanceThreshold { get; set; } = 2;
@@ -215,7 +215,7 @@ namespace Test {
 
             float[] buffer = new float[NumSamples];
             for (int i = 0; i < NumSamples; i++) {
-                buffer[i] = floats[maxIndex][i];
+                buffer[i] = floats[i][maxIndex];
             }
 
             Mat waveform = Mat.FromArray(buffer);

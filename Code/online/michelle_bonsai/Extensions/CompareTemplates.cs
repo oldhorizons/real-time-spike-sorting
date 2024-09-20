@@ -267,14 +267,14 @@ public class CompareTemplates
         int offset = 0;
         int end = numSamples;
         for (int i = 0; i < numSamples; i++) {
-            if (floats[maxIndex][i] != 0) {
+            if (floats[i][maxIndex] != 0) {
                 break;
             } else {
                 offset++;
             }
         }
         for (int i = numSamples; i > 0; i--) {
-            if (floats[maxIndex][i] != 0) {
+            if (floats[i][maxIndex] != 0) {
                 break;
             } else {
                 end--;
@@ -288,7 +288,7 @@ public class CompareTemplates
         // get the channel info at each sample
         float[] buffer = new float[numSamples];
         for (int i = offset; i < end; i++) {
-            buffer[i] = floats[maxIndex][i];
+            buffer[i] = floats[i][maxIndex];
         }
 
         Mat waveform = Mat.FromArray(buffer);
