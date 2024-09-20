@@ -174,62 +174,103 @@ namespace Test {
         }
 
         // Returns the matrix representation of a template as a 1-d Mat file
-        private SpikeWaveform GetSingleChanWaveform(string filename)
+        // todo add a way to track multiple channels? 
+        private SpikeTemplate GetSingleChanWaveform(string filename)
         {
             int numChannels = 0;
+            int numSamples = 0;
             float[] chanMax = new float[1];
             int[] chanMaxIndex = new int[1];
             List<List<float>> floats = new List<List<float>>();
 
-            using(StreamReader reader = new StreamReader(filename))
+            using (StreamReader reader = new StreamReader(filename))
             {
-                int j = 0;
                 //read list out
                 while (!reader.EndOfStream)
                 {
                     // read line and parse to float array
                     string[] line = reader.ReadLine().Split(',');
                     List<float> floatLine = new List<float>();
-                    foreach(string item in line) {
+                    foreach (string item in line)
+                    {
                         floatLine.Add(float.Parse(item));
                     }
-                    // count num samples, initialise numChannels and chanMax if this is the first run through
-                    if(numChannels == 0) {
+                    // initialise numChannels and chanMax if this is the first run through
+                    if (numChannels == 0)
+                    {
                         numChannels = floatLine.ToArray().Length;
                         chanMax = new float[numChannels];
                         chanMaxIndex = new int[numChannels];
                     }
                     //update channel maximums
-                    for (int i = 0; i < numChannels; i++) {
-                        if (Math.Abs(floatLine[i]) > chanMax[i]) {
-                            chanMaxIndex[i] = j;
+                    for (int i = 0; i < numChannels; i++)
+                    {
+                        if (Math.Abs(floatLine[i]) > chanMax[i])
+                        {
+                            chanMaxIndex[i] = numSamples;
                             chanMax[i] = Math.Abs(floatLine[i]);
                         }
                     }
                     floats.Add(floatLine);
-                    j++;
+                    numSamples++;
                 }
             }
             float maxValue = chanMax.Max();
             int maxIndex = chanMax.ToList().IndexOf(maxValue);
 
-            float[] buffer = new float[NumSamples];
-            for (int i = 0; i < NumSamples; i++) {
+
+            // cut off the leading and trailing zeroes because you don't want to try to match a flat line
+            int offset = 0;
+            int end = numSamples;
+            for (int i = 0; i < numSamples; i++)
+            {
+                if (floats[i][maxIndex] != 0)
+                {
+                    break;
+                }
+                else
+                {
+                    offset++;
+                }
+            }
+            for (int i = numSamples; i > 0; i--)
+            {
+                if (floats[i][maxIndex] != 0)
+                {
+                    break;
+                }
+                else
+                {
+                    end--;
+                }
+            }
+
+            //add a LITTLE buffer of zeroes
+            offset = Math.Max(0, offset - 2);
+            end = Math.Min(numSamples, end + 2);
+
+            // get the channel info at each sample
+            float[] buffer = new float[numSamples];
+            for (int i = offset; i < end; i++)
+            {
                 buffer[i] = floats[i][maxIndex];
             }
 
             Mat waveform = Mat.FromArray(buffer);
 
-            ////TODO: add an option to track multiple channels for this
-            //byte[] buffer = new byte[NumSamples * 4];
-            //System.Buffer.BlockCopy(floats[maxIndex].ToArray(),  0, buffer, 0, NumSamples * 4);
-            //Mat waveform = Mat.CreateMatHeader(buffer, 1, NumSamples, Depth.F32, 1);
-
-            return new SpikeWaveform{
+            // return waveform
+            return new SpikeTemplate
+            {
                 ChannelIndex = maxIndex,
                 SampleIndex = 0,
                 Waveform = waveform,
+                AlignMax = buffer.Contains(maxValue)
             };
+        }
+
+        protected class SpikeTemplate : SpikeWaveform
+        {
+            public bool AlignMax { get; set; }
         }
     }
 }

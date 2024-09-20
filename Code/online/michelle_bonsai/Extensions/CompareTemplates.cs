@@ -264,26 +264,28 @@ public class CompareTemplates
 
 
         // cut off the leading and trailing zeroes because you don't want to try to match a flat line
+        // int offset = 0;
+        // int end = numSamples;
+        // for (int i = 0; i < numSamples; i++) {
+        //     if (floats[i][maxIndex] != 0) {
+        //         break;
+        //     } else {
+        //         offset++;
+        //     }
+        // }
+        // for (int i = numSamples; i > 0; i--) {
+        //     if (floats[i][maxIndex] != 0) {
+        //         break;
+        //     } else {
+        //         end--;
+        //     }
+        // }
+
+        // //add a LITTLE buffer of zeroes
+        // offset = Math.Max(0, offset - 2);
+        // end = Math.Min(numSamples, end + 2);
         int offset = 0;
         int end = numSamples;
-        for (int i = 0; i < numSamples; i++) {
-            if (floats[i][maxIndex] != 0) {
-                break;
-            } else {
-                offset++;
-            }
-        }
-        for (int i = numSamples; i > 0; i--) {
-            if (floats[i][maxIndex] != 0) {
-                break;
-            } else {
-                end--;
-            }
-        }
-
-        //add a LITTLE buffer of zeroes
-        offset = Math.Max(0, offset - 2);
-        end = Math.Min(numSamples, end + 2);
 
         // get the channel info at each sample
         float[] buffer = new float[numSamples];
