@@ -153,14 +153,12 @@ public class CompareTemplates
     // there are less naive implementations that allow for early stopping / pruning (e.g. https://arxiv.org/pdf/2102.05221) 
     // but I have other things I need to do first
     private float DynamicTimeWarp(Mat sWav, Mat tWav) {
-        Console.WriteLine("doing DTW");
         double[,] DTW  = new double[sWav.Cols,tWav.Cols];
         for (int i = 0; i < sWav.Cols; i++) {
             for (int j = 0; j < tWav.Cols; j++) {
                 DTW[i,j] = double.MaxValue;
             }
         }
-        Console.WriteLine("initialised array");
         DTW[0,0] = 0;
         for (int i = 1; i < sWav.Cols; i++) {
             for (int j = 1; j < tWav.Cols; j++) {
@@ -170,9 +168,6 @@ public class CompareTemplates
                                 DTW[i-1,j-1]));
             }
         }
-        Console.WriteLine("calculated final");
-        Console.WriteLine("s{0} t{1}", sWav.Cols, tWav.Cols);
-        Console.WriteLine(DTW[sWav.Cols-1,tWav.Cols-1]);
         return (float)DTW[sWav.Cols-1,tWav.Cols-1];
     }
 
