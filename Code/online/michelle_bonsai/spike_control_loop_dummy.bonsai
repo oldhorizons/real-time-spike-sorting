@@ -4,6 +4,7 @@
                  xmlns:p1="clr-namespace:;assembly=Extensions"
                  xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
@@ -43,18 +44,17 @@
           <p1:Delay>20</p1:Delay>
           <p1:Length>60</p1:Length>
           <p1:Threshold>
-            <p1:double>-3.653612485845438</p1:double>
+            <p1:double>-2.4061928328778937</p1:double>
           </p1:Threshold>
           <p1:WaveformRefinement>AlignPeaks</p1:WaveformRefinement>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:CompareTemplates">
-          <p1:comparisonMethod>DTW</p1:comparisonMethod>
+          <p1:comparisonMethod>Cosine</p1:comparisonMethod>
           <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec/kilosort4/templates</p1:SourcePath>
           <p1:TemplatesToTrack>
             <p1:int>0</p1:int>
-            <p1:int>1</p1:int>
           </p1:TemplatesToTrack>
           <p1:VisualisationOutput>true</p1:VisualisationOutput>
           <p1:DistanceThreshold>5</p1:DistanceThreshold>
@@ -67,6 +67,13 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Timestamp" />
       </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Timestamps_Next/06_compare_templates.csv</io:FileName>
+        <io:Append>true</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
+      </Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>SimilarityMessage</Selector>
       </Expression>
@@ -76,34 +83,80 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Timestamp" />
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Timestamp" />
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Timestamps_Next/05_spike_detector.csv</io:FileName>
+        <io:Delimiter>,</io:Delimiter>
+        <io:Append>true</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Timestamp" />
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Timestamp" />
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Timestamps_Next/04_convert_scale.csv</io:FileName>
+        <io:Delimiter>,</io:Delimiter>
+        <io:Append>true</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Timestamp" />
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Timestamps_Next/03_butterworth.csv</io:FileName>
+        <io:Delimiter>,</io:Delimiter>
+        <io:Append>true</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Timestamp" />
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Timestamps_Next/02_select_channels.csv</io:FileName>
+        <io:Delimiter>,</io:Delimiter>
+        <io:Append>true</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Timestamp" />
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Timestamps_Next/01_source.csv</io:FileName>
+        <io:Delimiter>,</io:Delimiter>
+        <io:Append>true</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>None</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
       </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
-      <Edge From="0" To="14" Label="Source1" />
+      <Edge From="0" To="19" Label="Source1" />
       <Edge From="1" To="2" Label="Source1" />
-      <Edge From="1" To="13" Label="Source1" />
+      <Edge From="1" To="17" Label="Source1" />
       <Edge From="2" To="3" Label="Source1" />
-      <Edge From="2" To="12" Label="Source1" />
+      <Edge From="2" To="15" Label="Source1" />
       <Edge From="3" To="4" Label="Source1" />
-      <Edge From="3" To="11" Label="Source1" />
+      <Edge From="3" To="13" Label="Source1" />
       <Edge From="4" To="5" Label="Source1" />
-      <Edge From="4" To="10" Label="Source1" />
+      <Edge From="4" To="11" Label="Source1" />
       <Edge From="5" To="6" Label="Source1" />
-      <Edge From="5" To="8" Label="Source1" />
       <Edge From="5" To="9" Label="Source1" />
+      <Edge From="5" To="10" Label="Source1" />
       <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="15" To="16" Label="Source1" />
+      <Edge From="17" To="18" Label="Source1" />
+      <Edge From="19" To="20" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
