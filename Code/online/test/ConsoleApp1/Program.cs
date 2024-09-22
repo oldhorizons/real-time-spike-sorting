@@ -82,7 +82,7 @@ namespace Test {
 
         private float SimilarityMeasure(SpikeWaveform source, SpikeWaveform template) {
             Console.WriteLine("GOT ONE");
-            return CosineSimilarity(source, template);
+            return DynamicTimeWarp(source.Waveform, template.Waveform);
         }
 
         private float CosineSimilarity(SpikeWaveform source, SpikeWaveform template) {
@@ -219,39 +219,39 @@ namespace Test {
             int maxIndex = chanMax.ToList().IndexOf(maxValue);
 
 
-            // cut off the leading and trailing zeroes because you don't want to try to match a flat line
-            int offset = 0;
-            int end = numSamples;
-            for (int i = 0; i < numSamples; i++)
-            {
-                if (floats[i][maxIndex] != 0)
-                {
-                    break;
-                }
-                else
-                {
-                    offset++;
-                }
-            }
-            for (int i = numSamples; i > 0; i--)
-            {
-                if (floats[i][maxIndex] != 0)
-                {
-                    break;
-                }
-                else
-                {
-                    end--;
-                }
-            }
+            //// cut off the leading and trailing zeroes because you don't want to try to match a flat line
+            //int offset = 0;
+            //int end = numSamples;
+            //for (int i = 0; i < numSamples; i++)
+            //{
+            //    if (floats[i][maxIndex] != 0)
+            //    {
+            //        break;
+            //    }
+            //    else
+            //    {
+            //        offset++;
+            //    }
+            //}
+            //for (int i = numSamples; i > 0; i--)
+            //{
+            //    if (floats[i][maxIndex] != 0)
+            //    {
+            //        break;
+            //    }
+            //    else
+            //    {
+            //        end--;
+            //    }
+            //}
 
             //add a LITTLE buffer of zeroes
-            offset = Math.Max(0, offset - 2);
-            end = Math.Min(numSamples, end + 2);
+            //offset = Math.Max(0, offset - 2);
+            //end = Math.Min(numSamples, end + 2);
 
             // get the channel info at each sample
             float[] buffer = new float[numSamples];
-            for (int i = offset; i < end; i++)
+            for (int i = 0; i < numSamples; i++)
             {
                 buffer[i] = floats[i][maxIndex];
             }
@@ -266,6 +266,35 @@ namespace Test {
                 Waveform = waveform,
                 AlignMax = buffer.Contains(maxValue)
             };
+        }
+
+        private float DynamicTimeWarp(Mat sWav, Mat tWav)
+        {
+            double[,] DTW = new double[sWav.Cols, tWav.Cols];
+            for (int i = 0; i < sWav.Cols; i++)
+            {
+                for (int j = 0; j < tWav.Cols; j++)
+                {
+                    DTW[i, j] = double.MaxValue;
+                }
+            }
+            DTW[0, 0] = 0;
+            for (int i = 1; i < sWav.Cols; i++)
+            {
+                for (int j = 1; j < tWav.Cols; j++)
+                {
+                    double cost = euclideanDist(sWav[i].Val0, i, tWav[j].Val0, j);
+                    DTW[i, j] = cost + Math.Min(DTW[i - 1, j],
+                                    Math.Min(DTW[i, j - 1],
+                                    DTW[i - 1, j - 1]));
+                }
+            }
+            return (float)DTW[sWav.Cols-1, tWav.Cols-1];
+        }
+
+        private double euclideanDist(double a, int ai, double b, int bi)
+        {
+            return Math.Sqrt((a - b) * (a - b) + (ai - bi) * (ai - bi));
         }
 
         protected class SpikeTemplate : SpikeWaveform

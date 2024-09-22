@@ -15,15 +15,12 @@ using System.Text;
 public class CompareTemplates
 {
     // alt methods: 
-    // euclidean distance EW YUCK NO THANK YOU
     // align, then cosine similarity (O(N)) - x dot y / magnitude(x) * magnitude(y) -> scale-invariant so robust to differences in amplitude
     // cross-correlation - reasonably fast - argmax() - needs FFT methods
-    // Dynamic time warp[ing]
     // https://stackoverflow.com/questions/20644599/similarity-between-two-signals-looking-for-simple-measure
     public enum ComparisonMethod {
         Cosine,
-        CrossCor_NOT_IMPLEMENTED,
-        Dtw
+        DTW,
     }
 
     [Description("The method to use to compare")]
@@ -40,6 +37,10 @@ public class CompareTemplates
     [Category("Configuration")]
     public int[] TemplatesToTrack { get; set; }
 
+    [Description("Whether to add visualisation output. May increase latency.")]
+    [Category("Configuration")]
+    public bool VisualisationOutput {get; set;}
+
     // [Description("whether to convert the data in F32 format to UINT8 with scaling (to match data feed bit depth)")]
     // [Category("Configuration")]
     // public bool ConvertToU8 { get; set; }
@@ -54,47 +55,79 @@ public class CompareTemplates
 
     // so I can output more than one thing, for visualisation purposes.
     public class SpikeComparer {
-        public Mat template {get; set;}
-        public Mat source {get; set;}
-        public float similarity {get; set;}
-        public int accepted {get; set;}
+        public SpikeWaveformCollection TemplatesForVis {get; set;}
+        public List<Mat> Templates {get; set;}
+        public Mat Source {get; set;}
+        public float[] Similarities {get; set;}
+        public bool[] Accepted {get; set;}
+        public String SimilarityMessage {get; set;}
     }
 
     public IObservable<SpikeComparer> Process(IObservable<SpikeWaveformCollection> source)
     {
         List<SpikeTemplate> templates = LoadTemplates();
-        Console.WriteLine("Templates loaded");
+        if (VisualisationOutput) {
+            return ProcessForVisualisation(source, templates);
+        } else {
+            return ProcessForCLosedLoop(source, templates);
+        }
+    }
+
+    private IObservable<SpikeComparer> ProcessForVisualisation(IObservable<SpikeWaveformCollection> source, List<SpikeTemplate> templates) {
         return Observable.Create<SpikeComparer>(observer => {
             return source.Subscribe(waveforms => {
                 foreach (SpikeWaveform waveform in waveforms) {
+                    StringBuilder similarityMessage = new StringBuilder();
+                    SpikeComparer spikeComparer = new SpikeComparer() {
+                        Source = waveform.Waveform,
+                        TemplatesForVis  = new SpikeWaveformCollection(new Size(1, 60)),
+                        Templates = new List<Mat>()
+                    };
                     foreach (SpikeTemplate template in templates) {
-                        observer.OnNext(
-                            new SpikeComparer() {
-                                template = template.Waveform,
-                                source = waveform.Waveform,
-                                similarity = SimilarityMeasure(waveform.Waveform, template),
-                        });
+                        spikeComparer.Templates.Add(template.Waveform);
+                        spikeComparer.TemplatesForVis.Add(template);
+                        similarityMessage.AppendFormat("template: {0} | channel: {1} | similarity: {2} \r\n", template.Id, template.ChannelIndex, SimilarityMeasure(waveform, template));
                     }
+                    spikeComparer.SimilarityMessage = similarityMessage.ToString();
+                    observer.OnNext(spikeComparer);
                 }
             });
         });
     }
 
-    private float SimilarityMeasure(Mat source, SpikeTemplate template) {
+    private IObservable<SpikeComparer> ProcessForCLosedLoop(IObservable<SpikeWaveformCollection> source, List<SpikeTemplate> templates) {
+        return Observable.Create<SpikeComparer>(observer => {
+            return source.Subscribe(waveforms => {
+                foreach (SpikeWaveform waveform in waveforms) {
+                    List<float> similarities = new List<float>();
+                    SpikeComparer spikeComparer = new SpikeComparer();
+                    foreach (SpikeTemplate template in templates) {
+                        similarities.Add(SimilarityMeasure(waveform, template));
+                    }
+                    spikeComparer.Similarities = similarities.ToArray();
+                    observer.OnNext(spikeComparer);
+                }
+            });
+        });
+    }
+
+    private float SimilarityMeasure(SpikeWaveform source, SpikeTemplate template) {
+        // first check distance tolerance
+        if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > DistanceThreshold) {
+            return -1f;
+        }
+
         //DO NOT pass un-cloned template waveforms through any of the functions below.
         if (comparisonMethod == ComparisonMethod.Cosine) {
-            return CosineSimilarity(source, template.Waveform.Clone(), template.AlignMax);
-        } else if (comparisonMethod == ComparisonMethod.Dtw) {
-            return DynamicTimeWarp(source, template.Waveform);
+            return CosineSimilarity(source.Waveform, template.Waveform.Clone(), template.AlignMax);
+        } else if (comparisonMethod == ComparisonMethod.DTW) {
+            return DynamicTimeWarp(source.Waveform, template.Waveform);
         } else {
-            return CosineSimilarity(source, template.Waveform.Clone(), template.AlignMax);
+            return CosineSimilarity(source.Waveform, template.Waveform.Clone(), template.AlignMax);
         }
     }
 
     private float CosineSimilarity(Mat sWav, Mat tWav, bool alignMax) {
-        // if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > DistanceThreshold) {
-        //     return -1f;
-        // }
         AlignWaveforms(ref sWav, ref tWav, alignMax);
         int max = sWav.Cols;
         // Console.WriteLine("Num Cols: {0}", max);
@@ -112,8 +145,6 @@ public class CompareTemplates
         tMag = Math.Sqrt(tMag);
         sMag = Math.Sqrt(sMag);
         float cosineSimilarity = (float)(dotProduct / (tMag * sMag));
-        // Console.WriteLine("dotProduct: {0}, tMag: {1}, sMag: {2}, cosineSim: {3}", 
-                // dotProduct, tMag, sMag, cosineSimilarity);
         return cosineSimilarity;
     }
 
@@ -122,22 +153,27 @@ public class CompareTemplates
     // there are less naive implementations that allow for early stopping / pruning (e.g. https://arxiv.org/pdf/2102.05221) 
     // but I have other things I need to do first
     private float DynamicTimeWarp(Mat sWav, Mat tWav) {
+        Console.WriteLine("doing DTW");
         double[,] DTW  = new double[sWav.Cols,tWav.Cols];
         for (int i = 0; i < sWav.Cols; i++) {
             for (int j = 0; j < tWav.Cols; j++) {
                 DTW[i,j] = double.MaxValue;
             }
         }
+        Console.WriteLine("initialised array");
         DTW[0,0] = 0;
         for (int i = 1; i < sWav.Cols; i++) {
             for (int j = 1; j < tWav.Cols; j++) {
                 double cost = euclideanDist(sWav[i].Val0, i, tWav[j].Val0, j);
                 DTW[i,j] = cost + Math.Min(DTW[i-1, j],
                                 Math.Min(DTW[i, j-1],
-                                DTW[i=1,j-1]));
+                                DTW[i-1,j-1]));
             }
         }
-        return (float)DTW[sWav.Cols,tWav.Cols];
+        Console.WriteLine("calculated final");
+        Console.WriteLine("s{0} t{1}", sWav.Cols, tWav.Cols);
+        Console.WriteLine(DTW[sWav.Cols-1,tWav.Cols-1]);
+        return (float)DTW[sWav.Cols-1,tWav.Cols-1];
     }
 
     private double euclideanDist(double a, int ai, double b, int bi) {
@@ -181,9 +217,6 @@ public class CompareTemplates
         int tOff = offset < 0 ? -offset : 0;
         int sCut = lenDiff > 0 ? lenDiff : 0;
         int tCut = lenDiff < 0 ? -lenDiff : 0;
-        // Console.WriteLine("lenDiff: {0}, offset: {1}", lenDiff, offset);
-        // Console.WriteLine("sCols: {0}, sMaxI: {1}, sOff: {2}, sCut: {3} | tCols: {4}, tMaxI: {5}, tOff: {6}, tCut: {7}",
-        //                     sWav.Cols, sMaxI, sOff, sCut, tWav.Cols, tMaxI, tOff, tCut);
 
         sWav = ShortenMat(sWav, sOff, sCut);
         tWav = ShortenMat(tWav, tOff, tCut);
@@ -206,18 +239,14 @@ public class CompareTemplates
     {
         List<SpikeTemplate> templates = new List<SpikeTemplate>();
         StringBuilder consoleMessage = new StringBuilder();
-        StringBuilder shortConsoleMessage = new StringBuilder();
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
             string filename = String.Format("{0}/t{1}.txt", SourcePath, TemplatesToTrack[i]); //TODO CSV
             SpikeTemplate template = GetSingleChanWaveform(filename);
+            template.Id = TemplatesToTrack[i];
             templates.Add(template);
-            consoleMessage.AppendFormat("Template {0} chan: {1}", TemplatesToTrack[i], template.ChannelIndex);
-            if (i != TemplatesToTrack.Length - 1) {
-                consoleMessage.Append("\n");
-            }
-            shortConsoleMessage.AppendFormat("T{0}C{1} ", TemplatesToTrack[i], template.ChannelIndex);
+            consoleMessage.AppendFormat("T{0}C{1} ", TemplatesToTrack[i], template.ChannelIndex);
         }
-        Console.WriteLine(shortConsoleMessage.ToString());
+        Console.WriteLine(consoleMessage.ToString());
         return templates;
     }
 
@@ -262,35 +291,9 @@ public class CompareTemplates
         float maxValue = chanMax.Max();
         int maxIndex = chanMax.ToList().IndexOf(maxValue);
 
-
-        // cut off the leading and trailing zeroes because you don't want to try to match a flat line
-        // int offset = 0;
-        // int end = numSamples;
-        // for (int i = 0; i < numSamples; i++) {
-        //     if (floats[i][maxIndex] != 0) {
-        //         break;
-        //     } else {
-        //         offset++;
-        //     }
-        // }
-        // NB IF YOU ADD THIS BACK THE BELOW DOESN'T TAKE ABOVE LENGTH CHANGE INTO ACCOUNT
-        // for (int i = numSamples; i > 0; i--) {
-        //     if (floats[i][maxIndex] != 0) {
-        //         break;
-        //     } else {
-        //         end--;
-        //     }
-        // }
-
-        // //add a LITTLE buffer of zeroes
-        // offset = Math.Max(0, offset - 2);
-        // end = Math.Min(numSamples, end + 2);
-        int offset = 0;
-        int end = numSamples;
-
         // get the channel info at each sample
         float[] buffer = new float[numSamples];
-        for (int i = offset; i < end; i++) {
+        for (int i = 0; i < numSamples; i++) {
             buffer[i] = floats[i][maxIndex];
         }
 
@@ -307,5 +310,6 @@ public class CompareTemplates
 
     protected class SpikeTemplate : SpikeWaveform {
         public bool AlignMax {get; set;}
+        public int Id {get; set;}
     }
 }
