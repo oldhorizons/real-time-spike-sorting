@@ -236,7 +236,7 @@ public class CompareTemplates
         StringBuilder consoleMessage = new StringBuilder();
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
             string filename = String.Format("{0}/t{1}.csv", SourcePath, TemplatesToTrack[i]);
-            SpikeTemplate template = GetSingleChanWaveform(filename);
+            SpikeTemplate template = GetSingleChanWaveform(filename, i);
             template.Id = TemplatesToTrack[i];
             templates.Add(template);
             consoleMessage.AppendFormat("T{0}C{1} ", TemplatesToTrack[i], template.ChannelIndex);
@@ -247,7 +247,7 @@ public class CompareTemplates
 
     // Returns the matrix representation of a template as a 1-d Mat file
     // todo add a way to track multiple channels? 
-    private SpikeTemplate GetSingleChanWaveform(string filename)
+    private SpikeTemplate GetSingleChanWaveform(string filename, int idx)
     {
         int numChannels = 0;
         int numSamples = 0;
@@ -295,9 +295,11 @@ public class CompareTemplates
         Mat waveform = Mat.FromArray(buffer);
 
         // return waveform
+        // NB to be CORRECT ChannelIndex should be maxIndex and SampleIndex should be 0
+        // but to be VISIBLE it's easier if channelindex = idx
         return new SpikeTemplate{
-            ChannelIndex = maxIndex,
-            SampleIndex = 0,
+            ChannelIndex = idx,
+            SampleIndex = maxIndex,
             Waveform = waveform,
             AlignMax = buffer.Contains(maxValue)
         };
