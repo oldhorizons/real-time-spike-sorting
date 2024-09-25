@@ -235,7 +235,7 @@ public class CompareTemplates
         List<SpikeTemplate> templates = new List<SpikeTemplate>();
         StringBuilder consoleMessage = new StringBuilder();
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
-            string filename = String.Format("{0}/t{1}.txt", SourcePath, TemplatesToTrack[i]); //TODO CSV
+            string filename = String.Format("{0}/t{1}.csv", SourcePath, TemplatesToTrack[i]);
             SpikeTemplate template = GetSingleChanWaveform(filename);
             template.Id = TemplatesToTrack[i];
             templates.Add(template);

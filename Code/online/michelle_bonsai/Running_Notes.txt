@@ -1,0 +1,230 @@
+for key in outputs.keys():
+    print(key)
+    for ind in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
+        print(f"gt {ind:02} | fmax {outputs[key]['fmax'][ind]:.4f} | best match {str(outputs[key]['best_ind'][ind]).ljust(3, ' ')} | cb {cb[ind]}")
+
+sim_hybrid_ZFM_00m10s
+gt 00 | fmax 0.0000 | best match 15  | cb 18
+gt 01 | fmax 0.0000 | best match 28  | cb 38
+gt 02 | fmax 0.0000 | best match 5   | cb 71
+gt 03 | fmax 0.0437 | best match 54  | cb 243
+gt 04 | fmax 0.0000 | best match 62  | cb 269
+gt 05 | fmax 0.0000 | best match 16  | cb 220
+gt 06 | fmax 0.0000 | best match 26  | cb 229
+gt 07 | fmax 0.0000 | best match 5   | cb 81
+gt 08 | fmax 0.0000 | best match 5   | cb 85
+gt 09 | fmax 0.0000 | best match 63  | cb 189
+gt 10 | fmax 0.0000 | best match 28  | cb 34
+gt 11 | fmax 0.0000 | best match 51  | cb 254
+gt 12 | fmax 0.0000 | best match 1   | cb 25
+sim_hybrid_ZFM_00m30s
+gt 00 | fmax 0.1840 | best match 22  | cb 18
+gt 01 | fmax 0.1364 | best match 38  | cb 38
+gt 02 | fmax 0.0000 | best match 43  | cb 71
+gt 03 | fmax 0.0495 | best match 101 | cb 243
+gt 04 | fmax 0.0890 | best match 113 | cb 269
+gt 05 | fmax 0.0000 | best match 93  | cb 220
+gt 06 | fmax 0.5444 | best match 98  | cb 229
+gt 07 | fmax 0.1611 | best match 45  | cb 81
+gt 08 | fmax 0.0000 | best match 46  | cb 85
+gt 09 | fmax 0.0359 | best match 85  | cb 189
+gt 10 | fmax 0.1129 | best match 34  | cb 34
+gt 11 | fmax 0.1146 | best match 105 | cb 254
+gt 12 | fmax 0.0000 | best match 30  | cb 25
+sim_hybrid_ZFM_01m00s
+gt 00 | fmax 0.7556 | best match 33  | cb 18
+gt 01 | fmax 0.0000 | best match 53  | cb 38
+gt 02 | fmax 0.0000 | best match 69  | cb 71
+gt 03 | fmax 0.0310 | best match 200 | cb 243
+gt 04 | fmax 0.7919 | best match 229 | cb 269
+gt 05 | fmax 0.0000 | best match 177 | cb 220
+gt 06 | fmax 0.5202 | best match 187 | cb 229
+gt 07 | fmax 0.0122 | best match 74  | cb 81
+gt 08 | fmax 0.0528 | best match 75  | cb 85
+gt 09 | fmax 0.4332 | best match 153 | cb 189
+gt 10 | fmax 0.8880 | best match 51  | cb 34
+gt 11 | fmax 0.0463 | best match 212 | cb 254
+gt 12 | fmax 0.0000 | best match 48  | cb 25
+sim_hybrid_ZFM_05m00s
+gt 00 | fmax 0.9796 | best match 47  | cb 18
+gt 01 | fmax 1.0000 | best match 99  | cb 38
+gt 02 | fmax 0.0000 | best match 130 | cb 71
+gt 03 | fmax 0.8120 | best match 417 | cb 243
+gt 04 | fmax 0.1091 | best match 479 | cb 269
+gt 05 | fmax 0.0000 | best match 382 | cb 220
+gt 06 | fmax 0.9907 | best match 393 | cb 229
+gt 07 | fmax 0.6428 | best match 150 | cb 81
+gt 08 | fmax 0.9926 | best match 154 | cb 85
+gt 09 | fmax 0.9323 | best match 321 | cb 189
+gt 10 | fmax 0.9915 | best match 91  | cb 34
+gt 11 | fmax 1.0000 | best match 440 | cb 254
+gt 12 | fmax 0.8274 | best match 76  | cb 25
+sim_hybrid_ZFM_10m00s
+gt 00 | fmax 0.9688 | best match 46  | cb 18
+gt 01 | fmax 0.9930 | best match 110 | cb 38
+gt 02 | fmax 0.0000 | best match 150 | cb 71
+gt 03 | fmax 0.5790 | best match 473 | cb 243
+gt 04 | fmax 0.9897 | best match 550 | cb 269
+gt 05 | fmax 0.0000 | best match 416 | cb 220
+gt 06 | fmax 0.9898 | best match 446 | cb 229
+gt 07 | fmax 0.7573 | best match 169 | cb 81
+gt 08 | fmax 0.9638 | best match 177 | cb 85
+gt 09 | fmax 0.9439 | best match 351 | cb 189
+gt 10 | fmax 0.9892 | best match 93  | cb 34
+gt 11 | fmax 0.9909 | best match 505 | cb 254
+gt 12 | fmax 0.8770 | best match 80  | cb 25
+sim_hybrid_ZFM_15m00s
+gt 00 | fmax 0.9777 | best match 48  | cb 18
+gt 01 | fmax 0.9988 | best match 108 | cb 38
+gt 02 | fmax 0.0938 | best match 142 | cb 71
+gt 03 | fmax 0.6841 | best match 502 | cb 243
+gt 04 | fmax 0.7753 | best match 588 | cb 269
+gt 05 | fmax 0.0000 | best match 431 | cb 220
+gt 06 | fmax 0.9925 | best match 461 | cb 229
+gt 07 | fmax 0.8281 | best match 163 | cb 81
+gt 08 | fmax 0.9686 | best match 172 | cb 85
+gt 09 | fmax 0.9429 | best match 379 | cb 189
+gt 10 | fmax 0.8673 | best match 100 | cb 34
+gt 11 | fmax 1.0000 | best match 537 | cb 254
+gt 12 | fmax 0.9278 | best match 85  | cb 25
+sim_hybrid_ZFM_30m00s
+gt 00 | fmax 0.9735 | best match 64  | cb 18
+gt 01 | fmax 0.9987 | best match 120 | cb 38
+gt 02 | fmax 0.6193 | best match 157 | cb 71
+gt 03 | fmax 0.6649 | best match 545 | cb 243
+gt 04 | fmax 0.9974 | best match 632 | cb 269
+gt 05 | fmax 0.0000 | best match 479 | cb 220
+gt 06 | fmax 0.7555 | best match 502 | cb 229
+gt 07 | fmax 0.6325 | best match 176 | cb 81
+gt 08 | fmax 0.9787 | best match 182 | cb 85
+gt 09 | fmax 0.9380 | best match 412 | cb 189
+gt 10 | fmax 1.0000 | best match 104 | cb 34
+gt 11 | fmax 0.9982 | best match 584 | cb 254
+gt 12 | fmax 0.9321 | best match 83  | cb 25
+sim_hybrid_ZFM_FULL
+gt 00 | fmax 0.9735 | best match 57  | cb 18
+gt 01 | fmax 0.9988 | best match 128 | cb 38
+gt 02 | fmax 0.5679 | best match 177 | cb 71
+gt 03 | fmax 0.6451 | best match 574 | cb 243
+gt 04 | fmax 0.9969 | best match 679 | cb 269
+gt 05 | fmax 0.0000 | best match 518 | cb 220
+gt 06 | fmax 0.9948 | best match 541 | cb 229
+gt 07 | fmax 0.5530 | best match 207 | cb 81
+gt 08 | fmax 0.9937 | best match 211 | cb 85
+gt 09 | fmax 0.9457 | best match 441 | cb 189
+gt 10 | fmax 1.0000 | best match 112 | cb 34
+gt 11 | fmax 0.9987 | best match 617 | cb 254
+gt 12 | fmax 0.8820 | best match 88  | cb 25
+
+
+
+------------------OR IF YA NASTY---------------------
+
+for ind in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
+    for key in outputs.keys():
+        print(f"gt {ind:02} | fmax {outputs[key]['fmax'][ind]:.4f} | best match in {key.ljust(22, ' ')} {str(outputs[key]['best_ind'][ind]).ljust(3, ' ')} | cb {cb[ind]}")
+
+gt 00 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  15  | cb 18
+gt 00 | fmax 0.1840 | best match in sim_hybrid_ZFM_00m30s  22  | cb 18
+gt 00 | fmax 0.7556 | best match in sim_hybrid_ZFM_01m00s  33  | cb 18
+gt 00 | fmax 0.9796 | best match in sim_hybrid_ZFM_05m00s  47  | cb 18
+gt 00 | fmax 0.9688 | best match in sim_hybrid_ZFM_10m00s  46  | cb 18
+gt 00 | fmax 0.9777 | best match in sim_hybrid_ZFM_15m00s  48  | cb 18
+gt 00 | fmax 0.9735 | best match in sim_hybrid_ZFM_30m00s  64  | cb 18
+gt 00 | fmax 0.9735 | best match in sim_hybrid_ZFM_FULL    57  | cb 18
+gt 01 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  28  | cb 38
+gt 01 | fmax 0.1364 | best match in sim_hybrid_ZFM_00m30s  38  | cb 38
+gt 01 | fmax 0.0000 | best match in sim_hybrid_ZFM_01m00s  53  | cb 38
+gt 01 | fmax 1.0000 | best match in sim_hybrid_ZFM_05m00s  99  | cb 38
+gt 01 | fmax 0.9930 | best match in sim_hybrid_ZFM_10m00s  110 | cb 38
+gt 01 | fmax 0.9988 | best match in sim_hybrid_ZFM_15m00s  108 | cb 38
+gt 01 | fmax 0.9987 | best match in sim_hybrid_ZFM_30m00s  120 | cb 38
+gt 01 | fmax 0.9988 | best match in sim_hybrid_ZFM_FULL    128 | cb 38
+gt 02 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  5   | cb 71
+gt 02 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m30s  43  | cb 71
+gt 02 | fmax 0.0000 | best match in sim_hybrid_ZFM_01m00s  69  | cb 71
+gt 02 | fmax 0.0000 | best match in sim_hybrid_ZFM_05m00s  130 | cb 71
+gt 02 | fmax 0.0000 | best match in sim_hybrid_ZFM_10m00s  150 | cb 71
+gt 02 | fmax 0.0938 | best match in sim_hybrid_ZFM_15m00s  142 | cb 71
+gt 02 | fmax 0.6193 | best match in sim_hybrid_ZFM_30m00s  157 | cb 71
+gt 02 | fmax 0.5679 | best match in sim_hybrid_ZFM_FULL    177 | cb 71
+gt 03 | fmax 0.0437 | best match in sim_hybrid_ZFM_00m10s  54  | cb 243
+gt 03 | fmax 0.0495 | best match in sim_hybrid_ZFM_00m30s  101 | cb 243
+gt 03 | fmax 0.0310 | best match in sim_hybrid_ZFM_01m00s  200 | cb 243
+gt 03 | fmax 0.8120 | best match in sim_hybrid_ZFM_05m00s  417 | cb 243
+gt 03 | fmax 0.5790 | best match in sim_hybrid_ZFM_10m00s  473 | cb 243
+gt 03 | fmax 0.6841 | best match in sim_hybrid_ZFM_15m00s  502 | cb 243
+gt 03 | fmax 0.6649 | best match in sim_hybrid_ZFM_30m00s  545 | cb 243
+gt 03 | fmax 0.6451 | best match in sim_hybrid_ZFM_FULL    574 | cb 243
+gt 04 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  62  | cb 269
+gt 04 | fmax 0.0890 | best match in sim_hybrid_ZFM_00m30s  113 | cb 269
+gt 04 | fmax 0.7919 | best match in sim_hybrid_ZFM_01m00s  229 | cb 269
+gt 04 | fmax 0.1091 | best match in sim_hybrid_ZFM_05m00s  479 | cb 269
+gt 04 | fmax 0.9897 | best match in sim_hybrid_ZFM_10m00s  550 | cb 269
+gt 04 | fmax 0.7753 | best match in sim_hybrid_ZFM_15m00s  588 | cb 269
+gt 04 | fmax 0.9974 | best match in sim_hybrid_ZFM_30m00s  632 | cb 269
+gt 04 | fmax 0.9969 | best match in sim_hybrid_ZFM_FULL    679 | cb 269
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  16  | cb 220
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m30s  93  | cb 220
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_01m00s  177 | cb 220
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_05m00s  382 | cb 220
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_10m00s  416 | cb 220
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_15m00s  431 | cb 220
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_30m00s  479 | cb 220
+gt 05 | fmax 0.0000 | best match in sim_hybrid_ZFM_FULL    518 | cb 220
+gt 06 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  26  | cb 229
+gt 06 | fmax 0.5444 | best match in sim_hybrid_ZFM_00m30s  98  | cb 229
+gt 06 | fmax 0.5202 | best match in sim_hybrid_ZFM_01m00s  187 | cb 229
+gt 06 | fmax 0.9907 | best match in sim_hybrid_ZFM_05m00s  393 | cb 229
+gt 06 | fmax 0.9898 | best match in sim_hybrid_ZFM_10m00s  446 | cb 229
+gt 06 | fmax 0.9925 | best match in sim_hybrid_ZFM_15m00s  461 | cb 229
+gt 06 | fmax 0.7555 | best match in sim_hybrid_ZFM_30m00s  502 | cb 229
+gt 06 | fmax 0.9948 | best match in sim_hybrid_ZFM_FULL    541 | cb 229
+gt 07 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  5   | cb 81
+gt 07 | fmax 0.1611 | best match in sim_hybrid_ZFM_00m30s  45  | cb 81
+gt 07 | fmax 0.0122 | best match in sim_hybrid_ZFM_01m00s  74  | cb 81
+gt 07 | fmax 0.6428 | best match in sim_hybrid_ZFM_05m00s  150 | cb 81
+gt 07 | fmax 0.7573 | best match in sim_hybrid_ZFM_10m00s  169 | cb 81
+gt 07 | fmax 0.8281 | best match in sim_hybrid_ZFM_15m00s  163 | cb 81
+gt 07 | fmax 0.6325 | best match in sim_hybrid_ZFM_30m00s  176 | cb 81
+gt 07 | fmax 0.5530 | best match in sim_hybrid_ZFM_FULL    207 | cb 81
+gt 08 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  5   | cb 85
+gt 08 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m30s  46  | cb 85
+gt 08 | fmax 0.0528 | best match in sim_hybrid_ZFM_01m00s  75  | cb 85
+gt 08 | fmax 0.9926 | best match in sim_hybrid_ZFM_05m00s  154 | cb 85
+gt 08 | fmax 0.9638 | best match in sim_hybrid_ZFM_10m00s  177 | cb 85
+gt 08 | fmax 0.9686 | best match in sim_hybrid_ZFM_15m00s  172 | cb 85
+gt 08 | fmax 0.9787 | best match in sim_hybrid_ZFM_30m00s  182 | cb 85
+gt 08 | fmax 0.9937 | best match in sim_hybrid_ZFM_FULL    211 | cb 85
+gt 09 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  63  | cb 189
+gt 09 | fmax 0.0359 | best match in sim_hybrid_ZFM_00m30s  85  | cb 189
+gt 09 | fmax 0.4332 | best match in sim_hybrid_ZFM_01m00s  153 | cb 189
+gt 09 | fmax 0.9323 | best match in sim_hybrid_ZFM_05m00s  321 | cb 189
+gt 09 | fmax 0.9439 | best match in sim_hybrid_ZFM_10m00s  351 | cb 189
+gt 09 | fmax 0.9429 | best match in sim_hybrid_ZFM_15m00s  379 | cb 189
+gt 09 | fmax 0.9380 | best match in sim_hybrid_ZFM_30m00s  412 | cb 189
+gt 09 | fmax 0.9457 | best match in sim_hybrid_ZFM_FULL    441 | cb 189
+gt 10 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  28  | cb 34
+gt 10 | fmax 0.1129 | best match in sim_hybrid_ZFM_00m30s  34  | cb 34
+gt 10 | fmax 0.8880 | best match in sim_hybrid_ZFM_01m00s  51  | cb 34
+gt 10 | fmax 0.9915 | best match in sim_hybrid_ZFM_05m00s  91  | cb 34
+gt 10 | fmax 0.9892 | best match in sim_hybrid_ZFM_10m00s  93  | cb 34
+gt 10 | fmax 0.8673 | best match in sim_hybrid_ZFM_15m00s  100 | cb 34
+gt 10 | fmax 1.0000 | best match in sim_hybrid_ZFM_30m00s  104 | cb 34
+gt 10 | fmax 1.0000 | best match in sim_hybrid_ZFM_FULL    112 | cb 34
+gt 11 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  51  | cb 254
+gt 11 | fmax 0.1146 | best match in sim_hybrid_ZFM_00m30s  105 | cb 254
+gt 11 | fmax 0.0463 | best match in sim_hybrid_ZFM_01m00s  212 | cb 254
+gt 11 | fmax 1.0000 | best match in sim_hybrid_ZFM_05m00s  440 | cb 254
+gt 11 | fmax 0.9909 | best match in sim_hybrid_ZFM_10m00s  505 | cb 254
+gt 11 | fmax 1.0000 | best match in sim_hybrid_ZFM_15m00s  537 | cb 254
+gt 11 | fmax 0.9982 | best match in sim_hybrid_ZFM_30m00s  584 | cb 254
+gt 11 | fmax 0.9987 | best match in sim_hybrid_ZFM_FULL    617 | cb 254
+gt 12 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m10s  1   | cb 25
+gt 12 | fmax 0.0000 | best match in sim_hybrid_ZFM_00m30s  30  | cb 25
+gt 12 | fmax 0.0000 | best match in sim_hybrid_ZFM_01m00s  48  | cb 25
+gt 12 | fmax 0.8274 | best match in sim_hybrid_ZFM_05m00s  76  | cb 25
+gt 12 | fmax 0.8770 | best match in sim_hybrid_ZFM_10m00s  80  | cb 25
+gt 12 | fmax 0.9278 | best match in sim_hybrid_ZFM_15m00s  85  | cb 25
+gt 12 | fmax 0.9321 | best match in sim_hybrid_ZFM_30m00s  83  | cb 25
+gt 12 | fmax 0.8820 | best match in sim_hybrid_ZFM_FULL    88  | cb 25

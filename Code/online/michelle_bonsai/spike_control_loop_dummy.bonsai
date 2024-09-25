@@ -10,7 +10,7 @@
     <Nodes>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:SourceFromBin">
-          <p1:FilePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_1min/continuous.bin</p1:FilePath>
+          <p1:FilePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_01m00s/continuous.bin</p1:FilePath>
           <p1:BufferSize>30</p1:BufferSize>
           <p1:NumChannels>385</p1:NumChannels>
           <p1:Frequency>30000</p1:Frequency>
@@ -52,7 +52,7 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:CompareTemplates">
           <p1:comparisonMethod>Cosine</p1:comparisonMethod>
-          <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec/kilosort4/templates</p1:SourcePath>
+          <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_01m00s/kilosort4/templates</p1:SourcePath>
           <p1:TemplatesToTrack>
             <p1:int>0</p1:int>
           </p1:TemplatesToTrack>

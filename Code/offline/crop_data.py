@@ -156,6 +156,7 @@ def crop_data(data_dir, num_samples = 300000, gt_dir = None, offset = 0):
         crop_gt(new_dir, gt, num_samples, offset)
     
     print(f"CROPPED DATA SAVED TO {new_dir}")
+    return new_dir
 
 ## VISUALISATION FOR DEBUGGING PURPOSES. This one honestly doesn't work all that well
 def plot_heatmap(data, title, num_subplots = 1, ratio = 15, filename = None, save_img = False):

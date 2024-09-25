@@ -30,7 +30,6 @@ def do_kilosort(data_dir, n_channels, probe_name, save_outputs = False):
 def many_kilosort(dataDirs):
     """
     does many kilosorts and logs the results
-    
     """
     t = int(time.time())
     log = logger.set_up_logger(logger_dir + f"/logger_do_kilosort_{t}.txt", 'RUN_KILOSORT')
@@ -39,15 +38,16 @@ def many_kilosort(dataDirs):
         data_dir = d["data_dir"]
         n_channels = d["n_channels"]
         probe_name = d["probe_name"]
-        print(f"RUNNING KILOSORT FOR {data_name}")
+        print(f"RUNNING KILOSORT FOR {data_name}")  
         try: 
             log.info(f"START: {data_name}")
             do_kilosort(data_dir, n_channels, probe_name, True)
             log.info(f"SUCCESS: {data_name}")
             temp = np.load(data_dir + '/kilosort4/templates.npy')
-            os.mkdir(data_dir + '/kilosort4/templates')
+            if not os.path.exists(data_dir + '/kilosort4/templates'):
+                os.mkdir(data_dir + '/kilosort4/templates')
             for i, t  in enumerate(temp):
-                np.savetxt(data_dir + '/kilosort4/templates/t{i}.csv', t, delimiter=",")
+                np.savetxt(data_dir + f'/kilosort4/templates/t{i}.csv', t, delimiter=",")
         except Exception as e:
             log.exception(e)
  

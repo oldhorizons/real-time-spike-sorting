@@ -24,7 +24,7 @@ def load_ground_truth(gt_dir):
     # load ground truth file
     with np.load(gt_dir + "/sim.imec0.ap_params.npz") as gt:
         # extract spike times, cluster labels, and waveforms
-        # nb the file also has cb and ci
+        # nb the file also has cb (best channel) and ci
         st = gt['st'].astype('int64')
         cl = gt['cl'].astype('int64')
         wfs = gt['wfs']
@@ -83,7 +83,8 @@ def run_ks_bench(data_dir, gt_dir = None, p = True, pName = ""):
     results = {"fmax": fmax, "fmiss": fmiss, "fpos": fpos, "best_ind": best_ind, "matched_all": matched_all, "top_inds": top_inds}
     if p:
         filename = f"/benchmark_{pName}_{int(time.time())}.pkl"
-        file = open(pickle_dir + filename, "wb")
+        # todo pickle_dir not data_dir
+        file = open(data_dir + filename, "wb")
         pickle.dump(results, file)
         file.close()
     return results
