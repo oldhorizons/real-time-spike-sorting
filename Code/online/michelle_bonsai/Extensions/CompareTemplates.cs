@@ -86,7 +86,11 @@ public class CompareTemplates
                     foreach (SpikeTemplate template in templates) {
                         spikeComparer.Templates.Add(template.Waveform);
                         spikeComparer.TemplatesForVis.Add(template);
-                        similarityMessage.AppendFormat("template: {0} | channel: {1} | similarity: {2} visualisationIndex: {}\r\n", template.Id, template.SampleIndex, SimilarityMeasure(waveform, template), template.ChannelIndex);
+                        similarityMessage.AppendFormat("template: {0} | channel: {1} | similarity: {2} vis ID: {3}\r\n", 
+                                                        template.Id, 
+                                                        template.SampleIndex, 
+                                                        SimilarityMeasure(waveform, template), 
+                                                        template.ChannelIndex);
                     }
                     spikeComparer.SimilarityMessage = similarityMessage.ToString();
                     observer.OnNext(spikeComparer);
@@ -116,7 +120,6 @@ public class CompareTemplates
         if (Math.Abs(source.ChannelIndex - template.ChannelIndex) > DistanceThreshold) {
             return -1f;
         }
-
         //DO NOT pass un-cloned template waveforms through any of the functions below.
         if (comparisonMethod == ComparisonMethod.Cosine) {
             return CosineSimilarity(source.Waveform, template.Waveform.Clone(), template.AlignMax);
