@@ -52,9 +52,9 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:CompareTemplates">
           <p1:comparisonMethod>Cosine</p1:comparisonMethod>
-          <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_01m00s/kilosort4/templates</p1:SourcePath>
+          <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_05m00s/kilosort4/templates</p1:SourcePath>
           <p1:TemplatesToTrack>
-            <p1:int>28</p1:int>
+            <p1:int>99</p1:int>
           </p1:TemplatesToTrack>
           <p1:VisualisationOutput>true</p1:VisualisationOutput>
           <p1:DistanceThreshold>25</p1:DistanceThreshold>

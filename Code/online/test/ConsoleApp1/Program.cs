@@ -60,8 +60,8 @@ namespace Test {
         }
 
         public ComparisonMethod comparisonMethod;
-        public string SourcePath { get; set; } = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_10sec/kilosort4/templates";
-        public int[] TemplatesToTrack { get; set; } = new int[]{30};
+        public string SourcePath { get; set; } = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_05m00s/kilosort4/templates";
+        public int[] TemplatesToTrack { get; set; } = new int[]{99};
         public int NumSamples { get; set; } = 61;
         public bool ConvertToU8 { get; set; } = false;
         public float DistanceThreshold { get; set; } = 2;
@@ -82,7 +82,7 @@ namespace Test {
 
         private float SimilarityMeasure(SpikeWaveform source, SpikeWaveform template) {
             Console.WriteLine("GOT ONE");
-            return DynamicTimeWarp(source.Waveform, template.Waveform);
+            return CosineSimilarity(source, template);
         }
 
         private float CosineSimilarity(SpikeWaveform source, SpikeWaveform template) {
@@ -166,7 +166,7 @@ namespace Test {
         { 
             List<SpikeWaveform> templates = new List<SpikeWaveform>();
             for (int i = 0; i < TemplatesToTrack.Length; i++) {
-                string filename = String.Format("{0}/t{1}.txt", SourcePath, TemplatesToTrack[i]); //TODO CSV
+                string filename = String.Format("{0}/t{1}.csv", SourcePath, TemplatesToTrack[i]); 
                 SpikeWaveform template = GetSingleChanWaveform(filename);
                 templates.Add(template);
             }

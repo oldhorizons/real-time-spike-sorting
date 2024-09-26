@@ -86,7 +86,7 @@ public class CompareTemplates
                     foreach (SpikeTemplate template in templates) {
                         spikeComparer.Templates.Add(template.Waveform);
                         spikeComparer.TemplatesForVis.Add(template);
-                        similarityMessage.AppendFormat("template: {0} | channel: {1} | similarity: {2} \r\n", template.Id, template.ChannelIndex, SimilarityMeasure(waveform, template));
+                        similarityMessage.AppendFormat("template: {0} | channel: {1} | similarity: {2} visualisationIndex: {}\r\n", template.Id, template.SampleIndex, SimilarityMeasure(waveform, template), template.ChannelIndex);
                     }
                     spikeComparer.SimilarityMessage = similarityMessage.ToString();
                     observer.OnNext(spikeComparer);
@@ -239,7 +239,7 @@ public class CompareTemplates
             SpikeTemplate template = GetSingleChanWaveform(filename, i);
             template.Id = TemplatesToTrack[i];
             templates.Add(template);
-            consoleMessage.AppendFormat("T{0}C{1} ", TemplatesToTrack[i], template.ChannelIndex);
+            consoleMessage.AppendFormat("T{0}C{1} ", TemplatesToTrack[i], template.SampleIndex);
         }
         Console.WriteLine(consoleMessage.ToString());
         return templates;
