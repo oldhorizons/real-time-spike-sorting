@@ -66,7 +66,7 @@ def get_new_dir(data_dir, l, freq = 30000):
     dir_list.append(dir_name)
     return '/'.join(dir_list)
 
-def relabel_cropped_cl(cl, wfs = []):
+def relabel_cropped_cl(cl, wfs = [], cb=[], ci = []):
     """
     Redoes cluster labels to ensure no label is skipped
     NB to future self - I haven't thought super hard about the wfs thing
@@ -88,9 +88,10 @@ def relabel_cropped_cl(cl, wfs = []):
         # NB assumes clusters are 1-indexed
         cl[cl == j] = i + 1
     #remove all unused waveforms
-    if len(wfs) > 0:
-        np.delete(wfs, wfs_remove)
-    return cl, wfs
+    for metric in [wfs, cb, ci]:
+        if len(metric) > 0:
+            np.delete(metric, wfs_remove)
+    return cl, wfs, cb, ci
 
 def crop_gt(new_dir, gt, num_samples, offset):
     """
@@ -102,19 +103,21 @@ def crop_gt(new_dir, gt, num_samples, offset):
     """
     st = gt['st'].astype('int64')
     cl = gt['cl'].astype('int64')
+    cb = gt['cb']
+    ci = gt['ci']
     cl0 = len(np.unique(cl))
     wfs = gt['wfs']
     #find index at which spike time > offset (start position):
     i_start = next(i for i,v in enumerate(st) if v > offset)
     #find the index at which spike time > length of cropped recording
     # NB + 1 here for readability; python list indexing is [inclusive: non-inclusive]
-    i_end = next(i for i,v in enumerate(st) if (v > num_samples or i == len(st)-1)) + 1
+    i_end = next(i for i,v in enumerate(st) if (v > offset+num_samples or i == len(st)-1)) + 1
     st = st[i_start:i_end]
     cl = cl[i_start:i_end]
     if len(np.unique(cl)) <= np.max(cl) or len(np.unique(cl)) < cl0:
-        cl, wfs = relabel_cropped_cl(cl, wfs)
+        cl, wfs, cb, ci = relabel_cropped_cl(cl, wfs, cb, ci)
     
-    np.savez(new_dir + "/sim.imec0.ap_params.npz", st=st, cl=cl, wfs=wfs)
+    np.savez(new_dir + "/sim.imec0.ap_params.npz", st=st, cl=cl, wfs=wfs, cb=cb, ci=ci)
 
 def write_save(data, filename):
     with open(filename, 'wb') as f:

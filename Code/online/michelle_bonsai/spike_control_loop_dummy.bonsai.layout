@@ -42,8 +42,8 @@
       <MatVisualizer>
         <XMin>0</XMin>
         <XMax>600</XMax>
-        <YMin>-5000000</YMin>
-        <YMax>4000000</YMax>
+        <YMin>-3000000</YMin>
+        <YMax>5000000</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
@@ -123,9 +123,9 @@
     <VisualizerSettings>
       <SpikeWaveformCollectionVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>0</YMin>
-        <YMax>1.1</YMax>
+        <XMax>61</XMax>
+        <YMin>-10</YMin>
+        <YMax>5</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
@@ -180,8 +180,8 @@
       <Y>396</Y>
     </Location>
     <Size>
-      <Width>334</Width>
-      <Height>64</Height>
+      <Width>518</Width>
+      <Height>81</Height>
     </Size>
     <WindowState>Normal</WindowState>
     <VisualizerTypeName>Bonsai.Design.ObjectTextVisualizer</VisualizerTypeName>
@@ -204,8 +204,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>942</X>
-      <Y>487</Y>
+      <X>896</X>
+      <Y>481</Y>
     </Location>
     <Size>
       <Width>413</Width>
@@ -216,9 +216,9 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>0</YMin>
-        <YMax>1.1</YMax>
+        <XMax>60</XMax>
+        <YMin>-4</YMin>
+        <YMax>3.9999999999999996</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>

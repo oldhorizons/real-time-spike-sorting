@@ -31,17 +31,20 @@ gt_dir = data_dir
 #         "probe_name": 'neuropixPhase3B1_kilosortChanMap.mat'
 # })
 
-for length in [30000*60*2, 30000*60*3, 30000*60*4]:
-    new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = length)
-    new_name = new_dir.split("_")[-1]
-    print(new_name)
-    dat = {
-        "data_name": new_name,
-        "data_dir": new_dir,
-        "n_channels": d['n_channels'],
-        "probe_name": d['probe_name']}
-    k.many_kilosort([dat])
-    v.run_ks_bench(new_dir)
+
+new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = 30000*60, offset = 30000*60*15)
+
+# for length in [30000*60*2, 30000*60*3, 30000*60*4]:
+#     new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = length)
+#     new_name = new_dir.split("_")[-1]
+#     print(new_name)
+#     dat = {
+#         "data_name": new_name,
+#         "data_dir": new_dir,
+#         "n_channels": d['n_channels'],
+#         "probe_name": d['probe_name']}
+#     k.many_kilosort([dat])
+#     v.run_ks_bench(new_dir)
 
 # new_name = "SIM_HYBRID_ZFM_45M"
 # new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples=81000000)

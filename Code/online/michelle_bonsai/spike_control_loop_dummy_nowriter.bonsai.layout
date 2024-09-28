@@ -5,8 +5,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>29</X>
-      <Y>171</Y>
+      <X>16</X>
+      <Y>182</Y>
     </Location>
     <Size>
       <Width>413</Width>
@@ -17,40 +17,11 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>0</YMin>
-        <YMax>1.1</YMax>
+        <XMax>600</XMax>
+        <YMin>-5000000</YMin>
+        <YMax>4999999.9999999991</YMax>
         <AutoScaleX>true</AutoScaleX>
-        <AutoScaleY>true</AutoScaleY>
-        <SelectedPage>0</SelectedPage>
-        <ChannelsPerPage>16</ChannelsPerPage>
-        <OverlayChannels>false</OverlayChannels>
-        <ChannelOffset>0</ChannelOffset>
-        <HistoryLength>70</HistoryLength>
-        <WaveformBufferLength>1</WaveformBufferLength>
-      </MatVisualizer>
-    </VisualizerSettings>
-  </DialogSettings>
-  <DialogSettings>
-    <Visible>true</Visible>
-    <Location>
-      <X>21</X>
-      <Y>455</Y>
-    </Location>
-    <Size>
-      <Width>413</Width>
-      <Height>164</Height>
-    </Size>
-    <WindowState>Normal</WindowState>
-    <VisualizerTypeName>Bonsai.Dsp.Design.MatVisualizer</VisualizerTypeName>
-    <VisualizerSettings>
-      <MatVisualizer>
-        <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>0</YMin>
-        <YMax>1.2</YMax>
-        <AutoScaleX>true</AutoScaleX>
-        <AutoScaleY>true</AutoScaleY>
+        <AutoScaleY>false</AutoScaleY>
         <SelectedPage>0</SelectedPage>
         <ChannelsPerPage>16</ChannelsPerPage>
         <OverlayChannels>false</OverlayChannels>
@@ -63,28 +34,57 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>29</X>
-      <Y>625</Y>
+      <X>17</X>
+      <Y>477</Y>
     </Location>
     <Size>
-      <Width>413</Width>
-      <Height>179</Height>
+      <Width>404</Width>
+      <Height>282</Height>
     </Size>
     <WindowState>Normal</WindowState>
     <VisualizerTypeName>Bonsai.Dsp.Design.MatVisualizer</VisualizerTypeName>
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>0</YMin>
-        <YMax>1.2</YMax>
+        <XMax>450</XMax>
+        <YMin>-4000000</YMin>
+        <YMax>4000000</YMax>
         <AutoScaleX>true</AutoScaleX>
-        <AutoScaleY>true</AutoScaleY>
+        <AutoScaleY>false</AutoScaleY>
         <SelectedPage>0</SelectedPage>
         <ChannelsPerPage>16</ChannelsPerPage>
         <OverlayChannels>false</OverlayChannels>
         <ChannelOffset>0</ChannelOffset>
-        <HistoryLength>20</HistoryLength>
+        <HistoryLength>15</HistoryLength>
+        <WaveformBufferLength>1</WaveformBufferLength>
+      </MatVisualizer>
+    </VisualizerSettings>
+  </DialogSettings>
+  <DialogSettings>
+    <Visible>true</Visible>
+    <Location>
+      <X>420</X>
+      <Y>487</Y>
+    </Location>
+    <Size>
+      <Width>413</Width>
+      <Height>278</Height>
+    </Size>
+    <WindowState>Normal</WindowState>
+    <VisualizerTypeName>Bonsai.Dsp.Design.MatVisualizer</VisualizerTypeName>
+    <VisualizerSettings>
+      <MatVisualizer>
+        <XMin>0</XMin>
+        <XMax>300</XMax>
+        <YMin>-4000000</YMin>
+        <YMax>3999999.9999999995</YMax>
+        <AutoScaleX>true</AutoScaleX>
+        <AutoScaleY>false</AutoScaleY>
+        <SelectedPage>0</SelectedPage>
+        <ChannelsPerPage>16</ChannelsPerPage>
+        <OverlayChannels>false</OverlayChannels>
+        <ChannelOffset>0</ChannelOffset>
+        <HistoryLength>10</HistoryLength>
         <WaveformBufferLength>1</WaveformBufferLength>
       </MatVisualizer>
     </VisualizerSettings>
@@ -104,8 +104,8 @@
   <DialogSettings>
     <Visible>true</Visible>
     <Location>
-      <X>471</X>
-      <Y>333</Y>
+      <X>837</X>
+      <Y>454</Y>
     </Location>
     <Size>
       <Width>413</Width>
@@ -116,9 +116,9 @@
     <VisualizerSettings>
       <SpikeWaveformCollectionVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
-        <YMin>0</YMin>
-        <YMax>1.1</YMax>
+        <XMax>60</XMax>
+        <YMin>-3</YMin>
+        <YMax>3</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
@@ -126,7 +126,7 @@
         <OverlayChannels>false</OverlayChannels>
         <ChannelOffset>0</ChannelOffset>
         <HistoryLength>1</HistoryLength>
-        <WaveformBufferLength>1</WaveformBufferLength>
+        <WaveformBufferLength>20</WaveformBufferLength>
       </SpikeWaveformCollectionVisualizer>
     </VisualizerSettings>
   </DialogSettings>
@@ -143,28 +143,49 @@
     <WindowState>Normal</WindowState>
   </DialogSettings>
   <DialogSettings>
-    <Visible>false</Visible>
+    <Visible>true</Visible>
     <Location>
-      <X>927</X>
-      <Y>95</Y>
+      <X>737</X>
+      <Y>99</Y>
     </Location>
     <Size>
       <Width>413</Width>
       <Height>278</Height>
     </Size>
     <WindowState>Normal</WindowState>
+    <VisualizerTypeName>Bonsai.Dsp.Design.SpikeWaveformCollectionVisualizer</VisualizerTypeName>
+    <VisualizerSettings>
+      <SpikeWaveformCollectionVisualizer>
+        <XMin>0</XMin>
+        <XMax>61</XMax>
+        <YMin>-10</YMin>
+        <YMax>5</YMax>
+        <AutoScaleX>true</AutoScaleX>
+        <AutoScaleY>true</AutoScaleY>
+        <SelectedPage>0</SelectedPage>
+        <ChannelsPerPage>16</ChannelsPerPage>
+        <OverlayChannels>false</OverlayChannels>
+        <ChannelOffset>0</ChannelOffset>
+        <HistoryLength>1</HistoryLength>
+        <WaveformBufferLength>10</WaveformBufferLength>
+      </SpikeWaveformCollectionVisualizer>
+    </VisualizerSettings>
   </DialogSettings>
   <DialogSettings>
-    <Visible>false</Visible>
+    <Visible>true</Visible>
     <Location>
-      <X>926</X>
-      <Y>375</Y>
+      <X>739</X>
+      <Y>387</Y>
     </Location>
     <Size>
-      <Width>427</Width>
-      <Height>66</Height>
+      <Width>499</Width>
+      <Height>64</Height>
     </Size>
     <WindowState>Normal</WindowState>
+    <VisualizerTypeName>Bonsai.Design.ObjectTextVisualizer</VisualizerTypeName>
+    <VisualizerSettings>
+      <ObjectTextVisualizer />
+    </VisualizerSettings>
   </DialogSettings>
   <DialogSettings>
     <Visible>false</Visible>

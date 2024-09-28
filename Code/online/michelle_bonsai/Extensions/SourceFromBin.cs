@@ -38,6 +38,7 @@ public class SourceFromBin
     {
         byte[] buffer = reader.ReadBytes(NumChannels * BufferSize * 2);
         if (buffer.Length != NumChannels * BufferSize * 2) {
+            Console.Beep();
             return null;
         }
         Mat mat = Mat.CreateMatHeader(buffer, NumChannels, BufferSize, Depth.S32, 1); //todo change back to S32 WORKS WITH U8

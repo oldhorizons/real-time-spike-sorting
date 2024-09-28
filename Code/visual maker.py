@@ -21,7 +21,7 @@ def dtw_similarity(unit1, unit2):
 
 def load_gt(gt_dir=None):
     if gt_dir == None:
-        gt_dir = 'C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM'
+        gt_dir = 'C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_45m00s'
     with np.load(gt_dir + "/sim.imec0.ap_params.npz") as gt:
         st = gt['st'].astype('int64') #spike times
         cl = gt['cl'].astype('int64') #cluster labels
@@ -78,15 +78,29 @@ def plot_fmaxes():
     plt.boxplot(plots)
     plt.title("fMax vs Recording Length")
     plt.xticks(list(range(len(outputs.keys()) + 1))[1:], labels)
-    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/fmax_bwplot.png")
+    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/fma x_bwplot.png")
+    plt.clf()
 
-def plot_similarity(method="Cosine"):
+"""
+speed takes values slow / fast / all
+amps takes values small / large / all
+"""
+def plot_similarity(method, good_only=False, speed="all", amps="all"):
     labels = []
     sims = []
+    speedThresh = np.median(total_spikes)
+    ampThresh = np.median(amplitudes)
     for key in outputs.keys():
         keySims = []
         labels.append(key.split('_')[-1])
         for index, gt_unit in enumerate(wfs):
+            # skip some if needed
+            if (good_only == True and quality[index] == "mua"):
+                continue
+            if (speed == 'slow' and total_spikes[index] > speedThresh) or (speed == 'fast' and total_spikes[index] < speedThresh):
+                continue
+            if (amps == 'small' and amplitudes[index] > ampThresh) or (amps == 'large' and amplitudes[index] < ampThresh):
+                continue
             # only checks cosine similarity of best_ind
             ks_wfs = np.load(baseDir + "/" + key + "/kilosort4/templates.npy")
             ks_unit = ks_wfs[outputs[key]["best_ind"][index]]
@@ -94,17 +108,65 @@ def plot_similarity(method="Cosine"):
             match method:
                 case "DTW":
                     keySims.append(dtw_similarity(ks_unit, gt_unit))
+                    continue
                 case "dtw":
                     keySims.append(dtw_similarity(ks_unit, gt_unit))
+                    continue
+                case "Cosine":
+                    similarity = np.dot(ks_unit, gt_unit)/(np.linalg.norm(ks_unit) * np.linalg.norm(gt_unit))
+                    keySims.append(similarity)
+                    continue
                 case _:
                     similarity = np.dot(ks_unit, gt_unit)/(np.linalg.norm(ks_unit) * np.linalg.norm(gt_unit))
                     keySims.append(similarity)
-    sims.append(keySims)
-
+                    continue
+        sims.append(keySims)
     plt.boxplot(sims)
-    plt.title(f"{method} similarity vs recording length")
+    titleQualifier = []
+    if good_only:
+        titleQualifier.append("good")
+    if speed != "all":
+        titleQualifier.append(speed)
+    if amps != "all":
+        titleQualifier.append(amps)
+    titleQualifier = "all units" if (not good_only and speed == amps =="all") else ", ".join(titleQualifier) + " units only"
+    plt.title(f"{method} similarity vs recording length - {titleQualifier}")
     plt.xticks(list(range(len(outputs.keys()) + 1))[1:], labels)
-    plt.savefig(f"C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/{method}_sim_boxplot.png")
+    filenameQualifier = "_qall" if not good_only else "_qgood"
+    filenameQualifier += f"_s{speed}_a{amps}"
+    plt.savefig(f"C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/{method}_sim_boxplot{filenameQualifier}.png")
+    plt.clf()
+
+def dimensional_max(unit):
+    return np.unravel_index(np.argmax(unit), unit.shape)
+
+def dimensional_min(unit):
+    return np.unravel_index(np.argmin(unit), unit.shape)
+
+def scatter_timeseries(timeseries1d):
+    plt.scatter(timeseries1d, [range(len(timeseries1d))])
+    plt.show()
+
+def get_quality_ranges_speeds(filename = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_45m00s/kilosort4/cluster_KSlabel.tsv"):
+    labels = []
+    with open(filename, 'r') as f:
+        for line in f:
+            try:
+                if int(line.split('\t')[0]) in outputs['sim_hybrid_ZFM_45m00s']['best_ind']:
+                    labels.append(line.split('\t')[1].strip())
+            except:
+                continue
+    ranges = []
+    for unit in wfs:
+        axi = np.unravel_index(np.argmax(unit), unit.shape)
+        ax = unit[axi[0],axi[1]]
+        inni = np.unravel_index(np.argmin(unit), unit.shape)
+        inn = unit[inni[0],inni[1]]
+        ranges.append(ax - inn)
+    total_spikes = [0] * len(wfs)
+    for cluster in cl:
+        total_spikes[cluster] += 1
+    return labels, ranges, total_spikes
 
 
 def plot_all():
@@ -114,6 +176,12 @@ def plot_all():
     plot_similarity("DTW")
     print("PLOTTING COSINE SIM")
     plot_similarity("Cosine")
+    for s in ["slow", "fast", "all"]:
+        for a in ["small", "large", "all"]:
+            for g in [True, False]:
+                for m in ["Cosine", "DTW"]:
+                    print(m + str(g) + a + s)
+                    plot_similarity(m, g, s, a)
 
 
 # baseDir = "E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24"
@@ -129,6 +197,7 @@ for d in dirList:
         with open(baseDir + "/" + d + "/benchmark.pkl", 'rb') as f:
             outputs[d] = pkl.load(f)
 
-st,cl,wfs,cb,ci = load_gt()
-
+st,cl,wfs,cb,ci = load_gt('C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_1minfrom15')
+quality, amplitudes, total_spikes = get_quality_ranges_speeds()
+#TODO NOTE PLEASE OMG THIS DOES NOT SORT BY LABEL PER SORTER IT JUST SORTS BY 45MIN
 plot_all()

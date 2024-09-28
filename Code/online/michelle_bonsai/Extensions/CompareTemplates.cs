@@ -242,7 +242,7 @@ public class CompareTemplates
             SpikeTemplate template = GetSingleChanWaveform(filename, i);
             template.Id = TemplatesToTrack[i];
             templates.Add(template);
-            consoleMessage.AppendFormat("T{0}C{1} ", TemplatesToTrack[i], template.SampleIndex);
+            consoleMessage.AppendFormat("T{0}C{1}ID{2} ", TemplatesToTrack[i], template.SampleIndex, template.ChannelIndex);
         }
         Console.WriteLine(consoleMessage.ToString());
         return templates;
