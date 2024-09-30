@@ -27,9 +27,13 @@ public class CompareTemplates
     [Category("Configuration")]
     public ComparisonMethod comparisonMethod { get; set; }
 
-    [Description("The path to the folder containing the template .csv files")]
+    [Description("The path to the folder containing data")]
     [Category("Configuration")]
-    public string SourcePath { get; set; }
+    public string SourcePathStart { get; set; }
+
+    [Description("Any source path suffixes")]
+    [Category("Configuration")]
+    public string SourcePathSuffix { get; set; }
 
     [Description("Target templates")]
     [TypeConverter(typeof(UnidimensionalArrayConverter))]
@@ -86,11 +90,12 @@ public class CompareTemplates
                     foreach (SpikeTemplate template in templates) {
                         spikeComparer.Templates.Add(template.Waveform);
                         spikeComparer.TemplatesForVis.Add(template);
-                        similarityMessage.AppendFormat("template: {0} | channel: {1} | similarity: {2} vis ID: {3}\r\n", 
+                        similarityMessage.AppendFormat("CH{0} | t{1} tId{2}| tChan {3} | sim {4}\r\n", 
+                                                        waveform.ChannelIndex,
                                                         template.Id, 
+                                                        template.ChannelIndex,
                                                         template.SampleIndex, 
-                                                        SimilarityMeasure(waveform, template), 
-                                                        template.ChannelIndex);
+                                                        SimilarityMeasure(waveform, template));
                     }
                     spikeComparer.SimilarityMessage = similarityMessage.ToString();
                     observer.OnNext(spikeComparer);
@@ -238,7 +243,7 @@ public class CompareTemplates
         List<SpikeTemplate> templates = new List<SpikeTemplate>();
         StringBuilder consoleMessage = new StringBuilder();
         for (int i = 0; i < TemplatesToTrack.Length; i++) {
-            string filename = String.Format("{0}/t{1}.csv", SourcePath, TemplatesToTrack[i]);
+            string filename = String.Format("{0}{1}/kilosort4/templates/t{2}.csv", SourcePathStart, SourcePathSuffix, TemplatesToTrack[i]);
             SpikeTemplate template = GetSingleChanWaveform(filename, i);
             template.Id = TemplatesToTrack[i];
             templates.Add(template);

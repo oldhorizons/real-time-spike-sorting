@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import pickle as pkl
-from tslearn import metrics as tsm
+# from tslearn import metrics as tsm
 
 """
 fmax ([0 < float < 1]): 1 - (fmiss + fpos)
@@ -15,9 +15,9 @@ matched_all ([int]): number of spikes in top 20 clusters that match the ground t
 top_inds ([int]): the cluster labels for the matched_all list
 """
 
-def dtw_similarity(unit1, unit2):
-    shift, sim = tsm.dtw_path(unit1, unit2)
-    return sim
+# def dtw_similarity(unit1, unit2):
+#     shift, sim = tsm.dtw_path(unit1, unit2)
+#     return sim
 
 def load_gt(gt_dir=None):
     if gt_dir == None:
@@ -65,6 +65,16 @@ def align_templates_single_chan(ks_unit, gt_unit):
     newKs = newKs[:ksEnd]
     return newKs, newGt
 
+def dimensional_max(item):
+    return np.unravel_index(np.argmax(item), item.shape)
+
+def dimensional_min(item):
+    return np.unravel_index(np.argmin(item), item.shape)
+
+def scatter_1d(wf):
+    plt.plot(wf, [range(len(wf))])
+    plt.show()
+
 def plot_fmaxes():
     labels = []
     plots = []
@@ -88,8 +98,8 @@ amps takes values small / large / all
 def plot_similarity(method, good_only=False, speed="all", amps="all"):
     labels = []
     sims = []
-    speedThresh = np.median(total_spikes)
-    ampThresh = np.median(amplitudes)
+    speedThresh = np.median(numSpikes)
+    ampThresh = np.median(ranges)
     for key in outputs.keys():
         keySims = []
         labels.append(key.split('_')[-1])
@@ -97,21 +107,21 @@ def plot_similarity(method, good_only=False, speed="all", amps="all"):
             # skip some if needed
             if (good_only == True and quality[index] == "mua"):
                 continue
-            if (speed == 'slow' and total_spikes[index] > speedThresh) or (speed == 'fast' and total_spikes[index] < speedThresh):
+            if (speed == 'slow' and numSpikes[index] > speedThresh) or (speed == 'fast' and total_spikes[index] < speedThresh):
                 continue
-            if (amps == 'small' and amplitudes[index] > ampThresh) or (amps == 'large' and amplitudes[index] < ampThresh):
+            if (amps == 'small' and ranges[index] > ampThresh) or (amps == 'large' and amplitudes[index] < ampThresh):
                 continue
             # only checks cosine similarity of best_ind
             ks_wfs = np.load(baseDir + "/" + key + "/kilosort4/templates.npy")
             ks_unit = ks_wfs[outputs[key]["best_ind"][index]]
             ks_unit, gt_unit = align_templates_single_chan(ks_unit, gt_unit)
             match method:
-                case "DTW":
-                    keySims.append(dtw_similarity(ks_unit, gt_unit))
-                    continue
-                case "dtw":
-                    keySims.append(dtw_similarity(ks_unit, gt_unit))
-                    continue
+                # case "DTW":
+                #     keySims.append(dtw_similarity(ks_unit, gt_unit))
+                #     continue
+                # case "dtw":
+                #     keySims.append(dtw_similarity(ks_unit, gt_unit))
+                #     continue
                 case "Cosine":
                     similarity = np.dot(ks_unit, gt_unit)/(np.linalg.norm(ks_unit) * np.linalg.norm(gt_unit))
                     keySims.append(similarity)
@@ -137,17 +147,29 @@ def plot_similarity(method, good_only=False, speed="all", amps="all"):
     plt.savefig(f"C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/{method}_sim_boxplot{filenameQualifier}.png")
     plt.clf()
 
-def dimensional_max(unit):
-    return np.unravel_index(np.argmax(unit), unit.shape)
+def get_numspikes_spikeorder():
+    numSpikes = [0] * 100
+    for cluster in clFull:
+        numSpikes[cluster] += 1
+    sorted = numSpikes.copy()
+    sorted.sort()
+    spikeOrder = [numSpikes.index(i) for i in sorted]
+    return numSpikes, spikeOrder
 
-def dimensional_min(unit):
-    return np.unravel_index(np.argmin(unit), unit.shape)
+def get_ranges_rangeorder():
+    ranges = []
+    for waveform in wfsFull:
+        maxIndex = dimensional_max(waveform)
+        maxVal = waveform[maxIndex[0], maxIndex[1]]
+        minIndex = dimensional_min(waveform)
+        minVal = waveform[minIndex[0], minIndex[1]]
+        ranges.append(maxVal-minVal)
+    sorted = ranges.copy()
+    sorted.sort()
+    rangeOrder = [ranges.index(i) for i in sorted]
+    return ranges, rangeOrder
 
-def scatter_timeseries(timeseries1d):
-    plt.scatter(timeseries1d, [range(len(timeseries1d))])
-    plt.show()
-
-def get_quality_ranges_speeds(filename = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_45m00s/kilosort4/cluster_KSlabel.tsv"):
+def get_quality(filename = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_45m00s/kilosort4/cluster_KSlabel.tsv"):
     labels = []
     with open(filename, 'r') as f:
         for line in f:
@@ -156,17 +178,7 @@ def get_quality_ranges_speeds(filename = "C:/Users/miche/OneDrive/Documents/01 U
                     labels.append(line.split('\t')[1].strip())
             except:
                 continue
-    ranges = []
-    for unit in wfs:
-        axi = np.unravel_index(np.argmax(unit), unit.shape)
-        ax = unit[axi[0],axi[1]]
-        inni = np.unravel_index(np.argmin(unit), unit.shape)
-        inn = unit[inni[0],inni[1]]
-        ranges.append(ax - inn)
-    total_spikes = [0] * len(wfs)
-    for cluster in cl:
-        total_spikes[cluster] += 1
-    return labels, ranges, total_spikes
+    return labels
 
 
 def plot_all():
@@ -198,6 +210,13 @@ for d in dirList:
             outputs[d] = pkl.load(f)
 
 st,cl,wfs,cb,ci = load_gt('C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_1minfrom15')
-quality, amplitudes, total_spikes = get_quality_ranges_speeds()
-#TODO NOTE PLEASE OMG THIS DOES NOT SORT BY LABEL PER SORTER IT JUST SORTS BY 45MIN
-plot_all()
+
+stFull,clFull,wfsFull,cbFull,ciFull = load_gt()
+
+numSpikes, spikeOrder = get_numspikes_spikeorder()
+ranges, rangeOrder = get_ranges_rangeorder()
+quality = get_quality()
+
+
+
+# plot_all()

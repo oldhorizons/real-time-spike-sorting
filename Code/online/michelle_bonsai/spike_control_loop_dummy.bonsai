@@ -10,7 +10,7 @@
     <Nodes>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:SourceFromBin">
-          <p1:FilePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_01m00s/continuous.bin</p1:FilePath>
+          <p1:FilePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_1minfrom15/continuous.bin</p1:FilePath>
           <p1:BufferSize>30</p1:BufferSize>
           <p1:NumChannels>385</p1:NumChannels>
           <p1:Frequency>30000</p1:Frequency>
@@ -19,8 +19,10 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="dsp:SelectChannels">
           <dsp:Channels>
-            <dsp:int>42</dsp:int>
-            <dsp:int>70</dsp:int>
+            <dsp:int>21</dsp:int>
+            <dsp:int>77</dsp:int>
+            <dsp:int>10</dsp:int>
+            <dsp:int>173</dsp:int>
           </dsp:Channels>
         </Combinator>
       </Expression>
@@ -45,21 +47,27 @@
           <p1:Delay>20</p1:Delay>
           <p1:Length>60</p1:Length>
           <p1:Threshold>
-            <p1:double>-2.4061928328778937</p1:double>
+            <p1:double>-2.693938986551875</p1:double>
+            <p1:double>-3.0583112355931017</p1:double>
+            <p1:double>-1.9554684853845243</p1:double>
+            <p1:double>-2.5020267981703994</p1:double>
           </p1:Threshold>
           <p1:WaveformRefinement>AlignPeaks</p1:WaveformRefinement>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:CompareTemplates">
-          <p1:comparisonMethod>DTW</p1:comparisonMethod>
-          <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_05m00s/kilosort4/templates</p1:SourcePath>
+          <p1:comparisonMethod>Cosine</p1:comparisonMethod>
+          <p1:SourcePathStart>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_</p1:SourcePathStart>
+          <p1:SourcePathSuffix>45m00s</p1:SourcePathSuffix>
           <p1:TemplatesToTrack>
-            <p1:int>99</p1:int>
-            <p1:int>130</p1:int>
+            <p1:int>68</p1:int>
+            <p1:int>186</p1:int>
+            <p1:int>25</p1:int>
+            <p1:int>412</p1:int>
           </p1:TemplatesToTrack>
           <p1:VisualisationOutput>true</p1:VisualisationOutput>
-          <p1:DistanceThreshold>3</p1:DistanceThreshold>
+          <p1:DistanceThreshold>100</p1:DistanceThreshold>
           <p1:SimilarityThreshold>0</p1:SimilarityThreshold>
         </Combinator>
       </Expression>
