@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import pickle as pkl
+import offline.crop_data as cd
+import pandas as pd
 # from tslearn import metrics as tsm
 
 """
@@ -24,6 +26,9 @@ def load_gt(gt_dir=None):
         gt_dir = 'C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_45m00s'
     with np.load(gt_dir + "/sim.imec0.ap_params.npz") as gt:
         st = gt['st'].astype('int64') #spike times
+        #handle the fact I forgot to correct for this earlier
+        for i in range(len(st)):
+            st[i] -= 27000000
         cl = gt['cl'].astype('int64') #cluster labels
         wfs = gt['wfs'].astype('float64') #waveforms
         cb = gt['cb'] #best channel
@@ -72,7 +77,7 @@ def dimensional_min(item):
     return np.unravel_index(np.argmin(item), item.shape)
 
 def scatter_1d(wf):
-    plt.plot(wf, [range(len(wf))])
+    plt.plot(wf, list(range(len(wf))))
     plt.show()
 
 def plot_fmaxes():
@@ -195,21 +200,147 @@ def plot_all():
                     print(m + str(g) + a + s)
                     plot_similarity(m, g, s, a)
 
+def get_outputs(baseDir="C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"):
+    outputs = dict()
+    dirList = os.listdir(baseDir)
+    for d in dirList:
+        if "ZFM" in d:
+            print(d)
+            with open(baseDir + "/" + d + "/benchmark.pkl", 'rb') as f:
+                outputs[d] = pkl.load(f)
+
+#qualifier could be threshpc, latency, accuracy, or ""
+def get_bonsai_outputs(baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs", qualifier = ""):
+    latency_outputs = dict()
+    dirList = os.listdir(baseDir)
+
+    for d in dirList:
+        if qualifier in d:
+            out1 = dict()
+            csvList = os.listdir(baseDir + "/" + d)
+            for c in csvList:
+                arr = np.loadtxt(baseDir + "/" + d + "/" + c, delimiter = ",", dtype = float)
+
+def get_latency(directory):
+    for d in dirList:
+        pass
+
+def add_df_blanks(generator, follower):
+    newFollower = []
+    j = 0
+    for i, timestamp in enumerate(generator):
+        if j < len(follower) and follower[j] >= timestamp and (i == len(generator-1) or follower[j] <= generator[i+1]):
+            newFollower.append(follower[j])
+            j += 1
+        else:
+            newFollower.append(None)
+    return newFollower
+
+def generate_master_df_latency(directory):
+    dirList = os.listdir(directory)
+    pds = dict()
+    dirNames = ["01_source.csv",
+               "02_select_channels.csv",
+               "03_butterworth.csv",
+               "04_convert_scale.csv",
+               "05_spike_detector.csv",
+               "06_compare_templates.csv",
+               "06_match_level.csv"]
+    columnNames = ["source", "select_channels", "butterworth", "convert_scale", "spike_detector", "compare_templates"]
+    for name in dirList:
+        pds[name] = pd.read_csv(directory + "/" + name, header=None)
+    df = pd.DataFrame()
+    df.insert(0, "source_timestamp", pds["01_source.csv"][0].array)
+    df.insert(1, "select_channels", pds["02_select_channels.csv"][0].array)
+    df.insert(2, "butterworth", pds["03_butterworth.csv"][0].array)
+    df.insert(3, "convert_scale", pds["04_convert_scale.csv"][0].array)
+    df.insert(4, "spike_detector", pds["05_spike_detector.csv"][0].array)
+    if "06_compare_templates.csv" in dirList:
+        t = add_df_blanks(pds["05_spike_detector.csv"][0].array, pds["06_compare_templates.csv"][0].array)
+        df.insert(5, "compare_templates", t)
+    df["chan_select_latency"] = df.apply(lambda x: x[1] - x[0], axis=1)
+    df["butterworth_latency"] = df.apply(lambda x: x[2] - x[1], axis=1)
+    df["convert_scale_latency"] = df.apply(lambda x: x[3] - x[2], axis=1)
+    df["spike_detect_latency"] = df.apply(lambda x: x[4] - x[3], axis=1)
+    if "06_compare_templates.csv" in dirList:
+        df["compare_templates_latency"] = df.apply(lambda x: x[5] - x[4], axis=1)
+    return df
+
+def convert_match_lv(df):
+    wfChans = {0: 21, 1: 77, 2: 10, 3: 173, 4: 22}
+    titleToIndex = {"waveform_chan": 0, "gt_id": 1, "display_unit": 2, "template_chan": 3, "similarity": 4, "time_ms": 5}
+    
+    gtUnits = [70, 84, 77, 33, 65, 83]
+    gtIdentifiers = ["LGE", "SML", "FST", "SLW", "OVL"]
+    channels = [21, 77, 10, 173, 22]
+    timestamps = [[] for i in range(5)]
+    similarities = [[] for i in range(5)]
+    
+    for index, row in df.iterrows():
+        # "waveform_chan", "gt_id", "display_unit", "template_chan", "similarity", "time_ms"
+        i = int(row[titleToIndex["waveform_chan"]])
+        if row[titleToIndex["template_chan"]] != wfChans[i]:
+            continue
+        timestamps[i].append(row[titleToIndex["time_ms"]])
+        similarities[i].append(row[titleToIndex["similarity"]])  
+
+    return gtUnits, gtIdentifiers, channels, timestamps, similarities
+
+def generate_master_df_accuracy(directory, gt_st, gt_cl):
+    # waveformchan | gtId | displayUnit | template bestChan | similarityIndex | DateTime
+    # in batches of 5 for each
+    fileList = os.listdir(directory)
+
+    stampedSims = pd.read_csv(directory + "/06_match_level.csv", header=None)# ["waveform_chan", "gt_id", "display_unit", "template_chan", "similarity", "time_ms"])
+    source = pd.read_csv(directory + "/01_source.csv", header=None)
+    gtUnits, gtIdentifiers, channels, timestamps, similarities = convert_match_lv(stampedSims)
+    ticks = [[] for i in range(5)]
+    
+    df = pd.DataFrame()
+    df.insert(0, "source_timestamp", source[0].array)
+    df.insert(1, "source_ticknum", list(range(0, len(source[0].array)*30, 30)))
+    for i, timestampSet in enumerate(timestamps):
+        for ts in timestampSet:
+            idx = df[df["source_timestamp"].gt(ts)].index[0] #return index of first timestamp >= timestamp
+            idx = max(idx - 1, 0)
+            ticks[i].append(df["source_ticknum"][idx])
+    return gtUnits, gtIdentifiers, channels, ticks, similarities
+
+def extract_gt_ticks(st, cl, tracked=[70, 84, 77, 33, 65, 83]):
+    ticks = [[] for i in range(len(tracked))]
+    for i, tick in enumerate(st):
+        if cl[i] in tracked:
+            ticks[tracked.index(cl[i])].append(tick)
+    return ticks
+
+def gen_all_bonsai(gt_st, gt_cl, baseDir="C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs"):
+    for directory in os.listdir(baseDir):
+        print(directory)
+        newDir = baseDir + "/" + directory
+        if "RT_accuracy_00m10s" in directory:
+            continue
+        if "latency" in directory:
+            df = generate_master_df_latency(newDir)
+            df.to_csv(newDir + "/07_full_latency.csv")        
+        else:
+            gtUnits, gtIdentifiers, channels, ticks, similarities = generate_master_df_accuracy(newDir, gt_st, gt_cl)
+            np.savez(newDir + "/07_full_accuracy.npz", 
+                     dtype="object",
+                     gtUnits=np.array(gtUnits, dtype="object"),
+                     gtIdentifiers=np.array(gtIdentifiers, dtype="object"),
+                     channels=np.array(channels, dtype="object"),
+                     ticks=np.array(ticks, dtype="object"),
+                     sims=np.array(similarities, dtype="object"))
+            
+
 
 # baseDir = "E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24"
 baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"
 outputsDir = ""
 
-outputs = dict()
-dirList = os.listdir(baseDir)
 
-for d in dirList:
-    if "ZFM" in d:
-        print(d)
-        with open(baseDir + "/" + d + "/benchmark.pkl", 'rb') as f:
-            outputs[d] = pkl.load(f)
-
-st,cl,wfs,cb,ci = load_gt('C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_1minfrom15')
+outputs = get_outputs()
+st,cl,wfs,cb,ci = load_gt('C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15')
 
 stFull,clFull,wfsFull,cbFull,ciFull = load_gt()
 
@@ -217,6 +348,7 @@ numSpikes, spikeOrder = get_numspikes_spikeorder()
 ranges, rangeOrder = get_ranges_rangeorder()
 quality = get_quality()
 
+gen_all_bonsai(st, cl, baseDir="E:/Bonsai_Outputs")
 
 
 # plot_all()

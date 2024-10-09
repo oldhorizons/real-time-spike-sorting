@@ -8,6 +8,7 @@ using OpenCV.Net;
 using System.IO;
 using Bonsai.Dsp;
 using System.Text;
+using Bonsai.Reactive;
 
 [Combinator]
 [Description("Loads templates (todo clean this up) and compares them to the given channels")]
@@ -90,12 +91,20 @@ public class CompareTemplates
                     foreach (SpikeTemplate template in templates) {
                         spikeComparer.Templates.Add(template.Waveform);
                         spikeComparer.TemplatesForVis.Add(template);
-                        similarityMessage.AppendFormat("CH{0} | t{1} tId{2}| tChan {3} | sim {4}\r\n", 
+                        // similarityMessage.AppendFormat("CH{0} | t{1} tId{2} | tChan {3} | sim {4}\r\n", 
+                        //                                 waveform.ChannelIndex,
+                        //                                 template.Id, 
+                        //                                 template.ChannelIndex,
+                        //                                TemplatesToTrack[template.Id],
+                        //                                 template.SampleIndex, 
+                        //                                 SimilarityMeasure(waveform, template));
+                        similarityMessage.AppendFormat("{0},{1},{2},{3},{4},{5}\r\n", 
                                                         waveform.ChannelIndex,
                                                         template.Id, 
                                                         template.ChannelIndex,
                                                         template.SampleIndex, 
-                                                        SimilarityMeasure(waveform, template));
+                                                        SimilarityMeasure(waveform, template),
+                                                        DateTime.Now.TimeOfDay.TotalMilliseconds);
                     }
                     spikeComparer.SimilarityMessage = similarityMessage.ToString();
                     observer.OnNext(spikeComparer);

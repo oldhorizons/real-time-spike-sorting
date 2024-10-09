@@ -32,7 +32,7 @@ gt_dir = data_dir
 # })
 
 
-new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = 30000*60, offset = 30000*60*15)
+new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = 30000*60*10, offset = 30000*60*15)
 
 # for length in [30000*60*2, 30000*60*3, 30000*60*4]:
 #     new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = length)

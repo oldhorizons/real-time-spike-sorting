@@ -39,9 +39,10 @@ public class SourceFromBin
         byte[] buffer = reader.ReadBytes(NumChannels * BufferSize * 2);
         if (buffer.Length != NumChannels * BufferSize * 2) {
             Console.Beep();
+            Console.WriteLine("FINISHED");
             return null;
         }
-        Mat mat = Mat.CreateMatHeader(buffer, NumChannels, BufferSize, Depth.S32, 1); //todo change back to S32 WORKS WITH U8
+        Mat mat = Mat.CreateMatHeader(buffer, NumChannels, BufferSize, Depth.S16, 1); //this was S32 but the actual data is S16 and I'm the silliest of geeses
         return mat;
     }
 
@@ -56,7 +57,7 @@ public class SourceFromBin
                         break;
                     }
                     observer.OnNext(mat);
-                    await Task.Delay(TimeSpan.FromMilliseconds(10));
+                    // await Task.Delay(TimeSpan.FromMilliseconds(10));
                 }
             }
             return Disposable.Empty;

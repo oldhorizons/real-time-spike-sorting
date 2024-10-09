@@ -113,6 +113,8 @@ def crop_gt(new_dir, gt, num_samples, offset):
     # NB + 1 here for readability; python list indexing is [inclusive: non-inclusive]
     i_end = next(i for i,v in enumerate(st) if (v > offset+num_samples or i == len(st)-1)) + 1
     st = st[i_start:i_end]
+    for i in range(len(st)):
+        st[i] -= offset
     cl = cl[i_start:i_end]
     if len(np.unique(cl)) <= np.max(cl) or len(np.unique(cl)) < cl0:
         cl, wfs, cb, ci = relabel_cropped_cl(cl, wfs, cb, ci)
