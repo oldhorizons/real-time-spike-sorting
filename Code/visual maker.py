@@ -4,6 +4,8 @@ import os
 import pickle as pkl
 import offline.crop_data as cd
 import pandas as pd
+from tqdm import tqdm
+from scipy.optimize import linear_sum_assignment
 # from tslearn import metrics as tsm
 
 """
@@ -221,10 +223,6 @@ def get_bonsai_outputs(baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4
             for c in csvList:
                 arr = np.loadtxt(baseDir + "/" + d + "/" + c, delimiter = ",", dtype = float)
 
-def get_latency(directory):
-    for d in dirList:
-        pass
-
 def add_df_blanks(generator, follower):
     newFollower = []
     j = 0
@@ -266,7 +264,7 @@ def generate_master_df_latency(directory):
         df["compare_templates_latency"] = df.apply(lambda x: x[5] - x[4], axis=1)
     return df
 
-def convert_match_lv(df):
+def convert_match_lv(df, maxTimestamp):
     wfChans = {0: 21, 1: 77, 2: 10, 3: 173, 4: 22}
     titleToIndex = {"waveform_chan": 0, "gt_id": 1, "display_unit": 2, "template_chan": 3, "similarity": 4, "time_ms": 5}
     
@@ -276,54 +274,70 @@ def convert_match_lv(df):
     timestamps = [[] for i in range(5)]
     similarities = [[] for i in range(5)]
     
-    for index, row in df.iterrows():
+    for index, row in tqdm(df.iterrows(), total=df.shape[0]):
         # "waveform_chan", "gt_id", "display_unit", "template_chan", "similarity", "time_ms"
+        if maxTimestamp != None and row[titleToIndex["time_ms"]] > maxTimestamp:
+            break
         i = int(row[titleToIndex["waveform_chan"]])
-        if row[titleToIndex["template_chan"]] != wfChans[i]:
+        if i != row[titleToIndex["display_unit"]]:
             continue
         timestamps[i].append(row[titleToIndex["time_ms"]])
         similarities[i].append(row[titleToIndex["similarity"]])  
 
     return gtUnits, gtIdentifiers, channels, timestamps, similarities
 
-def generate_master_df_accuracy(directory, gt_st, gt_cl):
+def generate_master_df_accuracy(directory, gt_st, gt_cl, dataDir='C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15', recordingLength=None):
     # waveformchan | gtId | displayUnit | template bestChan | similarityIndex | DateTime
     # in batches of 5 for each
-    fileList = os.listdir(directory)
+    fileList =  os.listdir(directory)
 
     stampedSims = pd.read_csv(directory + "/06_match_level.csv", header=None)# ["waveform_chan", "gt_id", "display_unit", "template_chan", "similarity", "time_ms"])
     source = pd.read_csv(directory + "/01_source.csv", header=None)
-    gtUnits, gtIdentifiers, channels, timestamps, similarities = convert_match_lv(stampedSims)
+    thresholds = [-27.0, -36.0, -26.0, -17.0, -73.0]
+    firstCrosses = [[] for i in range(5)]
     ticks = [[] for i in range(5)]
-    
+    #align bin for first thing that crosses the threshold dataDir
+    for i, thresh in enumerate(thresholds):
+        dataChan = gt_data[:,i]
+        firstCrosses[i] = np.argmax(dataChan < thresholds[i] + 1) // 30
     df = pd.DataFrame()
     df.insert(0, "source_timestamp", source[0].array)
     df.insert(1, "source_ticknum", list(range(0, len(source[0].array)*30, 30)))
-    for i, timestampSet in enumerate(timestamps):
-        for ts in timestampSet:
-            idx = df[df["source_timestamp"].gt(ts)].index[0] #return index of first timestamp >= timestamp
+    maxTimestamp = None
+    if recordingLength != None:
+        maxTimestamp = df["source_timestamp"][recordingLength]
+    
+    gtUnits, gtIdentifiers, channels, timestamps, similarities = convert_match_lv(stampedSims, maxTimestamp)
+    #find the offset then find the closest one to that offset (some tolerance?)
+    #STOP ONCE YOU GET TO RECORDING_LENGTH
+    for i, timestampSet in enumerate(tqdm(timestamps)):
+        offset = max(df['source_timestamp'][firstCrosses[i]] - timestampSet[0] - 0.1, 0)
+        for j, ts in enumerate(timestampSet):
+            idx = df[df["source_timestamp"].gt(ts+offset)].index[0] #return index of first timestamp >= timestamp
             idx = max(idx - 1, 0)
             ticks[i].append(df["source_ticknum"][idx])
+            if recordingLength != None and j >= recordingLength: #stop once you get to target recording length
+                break
+            
     return gtUnits, gtIdentifiers, channels, ticks, similarities
 
 def extract_gt_ticks(st, cl, tracked=[70, 84, 77, 33, 65, 83]):
     ticks = [[] for i in range(len(tracked))]
+    tracked = list(tracked)
     for i, tick in enumerate(st):
         if cl[i] in tracked:
             ticks[tracked.index(cl[i])].append(tick)
     return ticks
 
-def gen_all_bonsai(gt_st, gt_cl, baseDir="C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs"):
+def gen_all_bonsai(gt_st, gt_cl, dataDir='C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15', baseDir="C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs"):
     for directory in os.listdir(baseDir):
         print(directory)
         newDir = baseDir + "/" + directory
-        if "RT_accuracy_00m10s" in directory:
-            continue
         if "latency" in directory:
             df = generate_master_df_latency(newDir)
-            df.to_csv(newDir + "/07_full_latency.csv")        
+            df.to_csv(newDir + "/07_full_latency.csv")   
         else:
-            gtUnits, gtIdentifiers, channels, ticks, similarities = generate_master_df_accuracy(newDir, gt_st, gt_cl)
+            gtUnits, gtIdentifiers, channels, ticks, similarities = generate_master_df_accuracy(newDir, gt_st, gt_cl, dataDir, recordingLength = 60000)
             np.savez(newDir + "/07_full_accuracy.npz", 
                      dtype="object",
                      gtUnits=np.array(gtUnits, dtype="object"),
@@ -331,24 +345,135 @@ def gen_all_bonsai(gt_st, gt_cl, baseDir="C:/Users/miche/OneDrive/Documents/01 U
                      channels=np.array(channels, dtype="object"),
                      ticks=np.array(ticks, dtype="object"),
                      sims=np.array(similarities, dtype="object"))
-            
+
+def load_all_bonsai(baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs"):
+    latencies = []
+    latencyNames = []
+    accuracies = []
+    accuracyNames = []
+    for directory in os.listdir(baseDir):
+        print(directory)
+        if "latency" in directory:
+            latencyNames.append(directory)
+            latencies.append(pd.read_csv(f"{baseDir}/{directory}/07_full_latency.csv"))
+        else:
+            with open(f"{baseDir}/{directory}/07_full_accuracy.npz", "rb") as f:
+                d = np.load(f, allow_pickle=True)
+                dic = dict()
+                for f in d.files:
+                    dic[f] = d[f]
+                accuracies.append(dic)
+                accuracyNames.append(directory)
+    return latencies, latencyNames, accuracies, accuracyNames
+
+def get_latency_graph(latencies, latencyNames):
+    categories = ["noOvl", "thresh", "ovl"]
+    categoryRenames = {"noOvl": "Cosine (distance tolerance=0)", "thresh": "Threshold Crossing", "ovl": "Cosine (distance tolerance=300)"}
+    nums = [1, 2, 4, 16, 32, 64, 128] #removed 8 because it was a bit screwy aye
+    headers = ['chan_select_latency', 'butterworth_latency', 'convert_scale_latency', 'spike_detect_latency', 'compare_templates_latency']
+    dat = [[0 for i in range(len(nums))] for j in range(len(categories))]
+
+    for i, name in enumerate(latencyNames):
+        for j, num in enumerate(nums):
+            for k, cat in enumerate(categories):
+                if cat in name and "_"+str(num)+"units" in name:
+                    for h in headers:
+                        try:
+                            desc = latencies[i].describe()[h]
+                            if desc['count'] != 60000.0:
+                                print(f"{name} {h}: m{desc['mean']} c{desc['count']}")
+                            dat[k][j] += desc["mean"]
+                        except:
+                            continue
+
+    for i, cat in enumerate(categories):
+        plt.plot(nums, dat[i], label=categoryRenames[cat])
+    plt.legend()
+    plt.xlabel("Units Tracked")
+    plt.ylabel("Total Latency (ms)")
+    plt.title("Pipeline Latency vs Units Tracked")
+    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/latency_vs_units.png")
+    plt.clf()
+
+def get_detected_labels(gtTicks, detectedTicks):
+    latestIndex = 0
+    labels = []
+    fNegs = []
+    tPos = 0
+    fPos = 0
+    fNeg = 0
+    cost_matrix = np.abs(gtTicks[:] - detectedTicks[:])
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+
+    # # Return the optimal mappings and the cost
+    # return row_ind, col_ind, cost_matrix[row_ind, col_ind]
+    # for i, tick in enumerate(detectedTicks):
+    #     if abs(gtTicks[latestIndex] - tick) >= 30:
+    #         if gtTicks[latestIndex] > tick:
+    #             fPos += 1
+    #             labels.append("fPos")
+    #         else:
+    #             fNeg += 1
+    #             fNegs.append(gtTicks[latestIndex])
+    #     elif :
+    #         # if this is the closest match
+    #         tPos += 1
+    #         labels.append("tPos")
+    #     else:
+    #         # find closest match and carry on like that
+    #     pass
+
+def get_thresh_accuracies(accuracies, accuracyNames, st, cl):
+    ticks = extract_gt_ticks(st, cl, accuracies[0]['gtUnits'])
+    for i, name in enumerate(accuracyNames):
+        d = accuracies[i]
+        d['name'] = name
+        for j, channelTicks in enumerate(ticks):
+            labels = get_detected_labels(channelTicks, accuracies[i]['ticks'][j])
+            if "threshpc" in name: #no sim scores required
+                d["tp"]
+                d["fp"]
+                d["fn"]
+                
+            else: #will need to deal with sim scores
+
+                d["optimalSimThreshold"]
+                d["tp"]
+                d["fp"]
+                d["fn"]
+
+        #check accuracies has actually been updated
+        continue
+        
 
 
 # baseDir = "E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24"
 baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"
+dataDir = 'C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15'
 outputsDir = ""
 
 
 outputs = get_outputs()
-st,cl,wfs,cb,ci = load_gt('C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15')
+st,cl,wfs,cb,ci = load_gt(dataDir)
 
 stFull,clFull,wfsFull,cbFull,ciFull = load_gt()
 
 numSpikes, spikeOrder = get_numspikes_spikeorder()
 ranges, rangeOrder = get_ranges_rangeorder()
 quality = get_quality()
+gt_data = cd.load_data(dataDir)[0]
 
-gen_all_bonsai(st, cl, baseDir="E:/Bonsai_Outputs")
+latencies, latencyNames, accuracies, accuracyNames = load_all_bonsai()
+threshAcc = get_thresh_accuracies(accuracies, accuracyNames, st, cl)
+# get_latency_graph(latencies, latencyNames)
+
+# gen_all_bonsai(st, cl, gt_data)
+
+
+# dir2 = os.listdir("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs")[0]
+# f = open(f"{baseDir}/Bonsai_Outputs/{dir2}/07_full_accuracy.npz", 'rb')
+# a = np.load(f, allow_pickle=True)
+# names = a.files
 
 
 # plot_all()
