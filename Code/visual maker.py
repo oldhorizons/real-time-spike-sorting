@@ -6,6 +6,7 @@ import offline.crop_data as cd
 import pandas as pd
 from tqdm import tqdm
 from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import cdist
 # from tslearn import metrics as tsm
 
 """
@@ -187,21 +188,6 @@ def get_quality(filename = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Da
                 continue
     return labels
 
-
-def plot_all():
-    print("PLOTTING FMAX")
-    plot_fmaxes()
-    print("PLOTTING DTW SIM")
-    plot_similarity("DTW")
-    print("PLOTTING COSINE SIM")
-    plot_similarity("Cosine")
-    for s in ["slow", "fast", "all"]:
-        for a in ["small", "large", "all"]:
-            for g in [True, False]:
-                for m in ["Cosine", "DTW"]:
-                    print(m + str(g) + a + s)
-                    plot_similarity(m, g, s, a)
-
 def get_outputs(baseDir="C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"):
     outputs = dict()
     dirList = os.listdir(baseDir)
@@ -321,7 +307,7 @@ def generate_master_df_accuracy(directory, gt_st, gt_cl, dataDir='C:/Users/miche
             
     return gtUnits, gtIdentifiers, channels, ticks, similarities
 
-def extract_gt_ticks(st, cl, tracked=[70, 84, 77, 33, 65, 83]):
+def extract_gt_ticks(st, cl, tracked=[70, 84, 33, 65, 83]):
     ticks = [[] for i in range(len(tracked))]
     tracked = list(tracked)
     for i, tick in enumerate(st):
@@ -395,57 +381,196 @@ def get_latency_graph(latencies, latencyNames):
     plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/latency_vs_units.png")
     plt.clf()
 
-def get_detected_labels(gtTicks, detectedTicks):
-    latestIndex = 0
+def get_detected_labels(gtTicks, detectedTicks, offset=0): #offset just in case of data misalignment earlier in the process
+    if gtTicks[-1] > detectedTicks[-1]:
+        gtTicks = gtTicks[:np.where(np.array(gtTicks) > detectedTicks[-1])[0][0]]
     labels = []
-    fNegs = []
+    fNegTicks = []
     tPos = 0
     fPos = 0
     fNeg = 0
-    cost_matrix = np.abs(gtTicks[:] - detectedTicks[:])
-    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+    costMatrix = cdist(np.array([detectedTicks]).T, np.array([gtTicks]).T, 'euclidean')
+    detectedInd, gtInd = linear_sum_assignment(costMatrix)
+    j = 0
+    for i, detectedTick in enumerate(detectedTicks):
+        if j < len(detectedInd) and i == detectedInd[j]:
+            if abs((detectedTick+offset) - gtTicks[gtInd[j]]) <= 65: #simulated source is 30 ticks wide, refractory period of a neuron is 90 ticks wide
+                # true positive
+                labels.append("tPos")
+                tPos += 1
+            else:
+                fNegTicks.append(gtTicks[gtInd[j]])
+                fNeg += 1
+            j += 1
+        else:
+            labels.append("fPos")
+            fPos += 1
+    return labels, fNegTicks, tPos, fPos, fNeg
 
-    # # Return the optimal mappings and the cost
-    # return row_ind, col_ind, cost_matrix[row_ind, col_ind]
-    # for i, tick in enumerate(detectedTicks):
-    #     if abs(gtTicks[latestIndex] - tick) >= 30:
-    #         if gtTicks[latestIndex] > tick:
-    #             fPos += 1
-    #             labels.append("fPos")
-    #         else:
-    #             fNeg += 1
-    #             fNegs.append(gtTicks[latestIndex])
-    #     elif :
-    #         # if this is the closest match
-    #         tPos += 1
-    #         labels.append("tPos")
-    #     else:
-    #         # find closest match and carry on like that
-    #     pass
+def get_optimal_sim_threshold(detectedTicks, gtTicks, similarities, labels):
+    if gtTicks[-1] > detectedTicks[-1]:
+        gtTicks = gtTicks[:np.where(np.array(gtTicks) > detectedTicks[-1])[0][0]]
+    
+    thresholds = list(range(-10, 10, 1))
+    for i in range(len(thresholds)):
+        thresholds[i] /= 10
+    fPos = [0 for i in thresholds]
+    tPos = [0 for i in thresholds]
+    fNeg = [0 for i in thresholds]
+    tNeg = [0 for i in thresholds]
+    for i, threshold in enumerate(thresholds):
+        for j in range(len(labels)):
+            if labels[j] == 'tPos':
+                if similarities[j] >= threshold:
+                    tPos[i] += 1
+                else:
+                    fNeg[i] += 1
+            if labels[j] == 'fPos':
+                if similarities[i] >= threshold:
+                    fPos[i] += 1
+                else:
+                    tNeg[i] += 1
+    
+    f1 = [0 for i in thresholds]
+    for i in range(len(thresholds)):
+        tp, fp, fn = tPos[i], fPos[i], fNeg[i]
+        denom = tp + 0.5*(fp + fn)
+        f1[i] = 0 if denom == 0 else tp / denom
+    
+    #find optimal threshold by F1 score
+    maxInd = np.argmax(f1)
+    return thresholds[maxInd], tPos[maxInd], fPos[maxInd], fNeg[maxInd]
 
-def get_thresh_accuracies(accuracies, accuracyNames, st, cl):
-    ticks = extract_gt_ticks(st, cl, accuracies[0]['gtUnits'])
+def get_thresh_accuracies(accuracySims, accuracyNames, st, cl, saveDir = None):
+    trackedUnits = [70, 84, 33, 65, 83]
+    gtTicks = extract_gt_ticks(st, cl, trackedUnits) #magic number but it's the only way to make it consistent. would be accuracySims[0]['gtUnits'] but that's got length 6
     for i, name in enumerate(accuracyNames):
-        d = accuracies[i]
-        d['name'] = name
-        for j, channelTicks in enumerate(ticks):
-            labels = get_detected_labels(channelTicks, accuracies[i]['ticks'][j])
-            if "threshpc" in name: #no sim scores required
-                d["tp"]
-                d["fp"]
-                d["fn"]
-                
-            else: #will need to deal with sim scores
+        print(f"getting thresh: {name}")
+        simulation = accuracySims[i]
+        simulation['name'] = name
+        simulation['tPos'] = []
+        simulation['fPos'] = []
+        simulation['fNeg'] =  []
+        simulation['labels'] = []
+        simulation['optimalThresh'] = []
+        simulation['cosTPos'] = []
+        simulation['cosFPos'] = []
+        simulation['cosFNeg'] = []
+        for j, chanGtTicks in enumerate(gtTicks):
+            if simulation['gtUnits'][j] not in trackedUnits:
+                continue
+            labels, fNegTicks, tPos, fPos, fNeg = get_detected_labels(chanGtTicks, simulation['ticks'][j])
+            simulation['tPos'].append(tPos)
+            simulation['fPos'].append(fPos)
+            simulation['fNeg'].append(fNeg)
+            simulation['labels'].append(labels)
+            if "threshpc" not in name: #will need to deal with sim scores
+                similarityThreshold, newTPos, newFPos, newFNeg = get_optimal_sim_threshold(simulation['ticks'][j], chanGtTicks, simulation['sims'][j], labels)
+                simulation['optimalThresh'].append(similarityThreshold)
+                simulation['cosTPos'].append(newTPos)
+                simulation['cosFPos'].append(newFPos)
+                simulation['cosFNeg'].append(newFNeg + fNeg)
+        accuracySims[i] = simulation
+    if saveDir != None:
+        with open(saveDir + "/all_thresh_accuracies.pkl", 'wb') as f:
+            pkl.dump(accuracySims, f, protocol=pkl.HIGHEST_PROTOCOL)
+    return accuracySims
 
-                d["optimalSimThreshold"]
-                d["tp"]
-                d["fp"]
-                d["fn"]
+def load_thresh_accuracies(saveDir):
+    with open(saveDir + "/all_thresh_accuracies.pkl", 'rb') as f:
+        accuracySims = pkl.load(f) #, protocol=pkl.HIGHEST_PROTOCOL?
+    return accuracySims
 
-        #check accuracies has actually been updated
-        continue
-        
+def plot_threshold_crossing_accuracy(thresholdSims, unitNums, unitNames):
+    f1s = [[] for u in unitNames]
+    thresholds = []
+    #get the data out
+    for t in thresholdSims:
+        thresholds.append(t['value'])
+        for i in range(len(unitNames)):
+            tp, fp, fn = t['tPos'][i], t['fPos'][i], t['fNeg'][i]
+            denom = tp + 0.5*(fp + fn)
+            f1 = 0 if denom == 0 else tp / denom
+            f1s[i].append(f1)
+    
+    #plot the data
+    for i in range(len(unitNames)):
+        plt.plot(thresholds, f1s[i], label=unitNames[i])
+    plt.legend()
+    plt.xlabel("Amplitude Threshold (Channel Percentile)")
+    plt.ylabel("Unit F1 Score")
+    plt.title("F1 Score vs Amplitude Threshold")
+    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/threshold_crossing_accuracy.png")
+    plt.show()
+    plt.clf()
 
+def plot_cos_accuracy(cosineSims, unitNums, unitNames): #TODO add optimal F1 scoring thing idk what it's called my brain is tired
+    f1s = [[] for u in unitNames]
+    thresholds = []
+    #get the data out
+    for t in cosineSims:
+        thresholds.append(t['value'])
+        for i in range(len(unitNames)):
+            tp, fp, fn = t['tPos'][i], t['fPos'][i], t['fNeg'][i]
+            denom = tp + 0.5*(fp + fn)
+            f1 = 0 if denom == 0 else tp / denom
+            f1s[i].append(f1)
+    
+    #plot the data
+    for i in range(len(unitNames)):
+        plt.plot(thresholds, f1s[i], label=unitNames[i])
+    plt.legend()
+    plt.xlabel("Training Time (s)")
+    plt.ylabel("Unit F1 Score")
+    plt.title("F1 Score vs Amplitude Threshold")
+    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/cosine_similarity_accuracy.png")
+    plt.show()
+    plt.clf()
+
+def plot_all_accuracy(threshAcc):
+    thresholdInfo = []
+    cosInfo = []
+    units = threshAcc[0]['gtUnits']
+    unitNames = threshAcc[0]['gtIdentifiers'] #todo check this is right lmao - there might be 6 in here and 6 in the one above
+    for acc in threshAcc:
+        if 'threshpc' in acc['name']:
+            d = dict()
+            d['label'] = acc['name'].split('_')[-1]
+            d['value'] = float(d['label'])
+            d['tPos'] = acc['tPos']
+            d['fPos'] = acc['fPos']
+            d['fNeg'] = acc['fNeg']
+            thresholdInfo.append(d)
+        elif "accuracy" in acc['name']:
+            d = dict()
+            label = acc['name'].split('_')[-1]
+            label = label[3:] if label.startswith('00') else label[:3]
+            d['label'] = label
+            d['value'] = int(label[:2]) if label.endswith('s') else int(label[:2]) * 60
+            d['tPos'] = acc['cosTPos']
+            d['fPos'] = acc['cosFPos']
+            d['fNeg'] = acc['cosFNeg']
+            cosInfo.append(d)
+        else:
+            print(f"AND YOU MAY ASK YOURSELF \nHOW DID I GET HERE \n {acc['name']} \nAND YOU MAY TELL YOURSELF \nTHIS IS NOT MY BEAUTIFUL HOUSE \nAND YOU MAY TELL YOURSELF \nTHIS IS NOT MY BEAUTIFUL WIFE")
+    plot_threshold_crossing_accuracy(thresholdInfo, units, unitNames)
+    plot_cos_accuracy(cosInfo, units, unitNames)
+
+def plot_all(threshAcc):
+    print("PLOTTING FMAX")
+    plot_fmaxes()
+    print("PLOTTING DTW SIM")
+    plot_similarity("DTW")
+    print("PLOTTING COSINE SIM")
+    plot_similarity("Cosine")
+    for s in ["slow", "fast", "all"]:
+        for a in ["small", "large", "all"]:
+            for g in [True, False]:
+                for m in ["Cosine", "DTW"]:
+                    print(m + str(g) + a + s)
+                    plot_similarity(m, g, s, a)
+    print("PLOTTING ACCURACY")
+    plot_all_accuracy(threshAcc)
 
 # baseDir = "E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24"
 baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"
@@ -464,7 +589,12 @@ quality = get_quality()
 gt_data = cd.load_data(dataDir)[0]
 
 latencies, latencyNames, accuracies, accuracyNames = load_all_bonsai()
-threshAcc = get_thresh_accuracies(accuracies, accuracyNames, st, cl)
+# threshAcc = get_thresh_accuracies(accuracies, accuracyNames, st, cl, saveDir = baseDir)
+threshAcc = load_thresh_accuracies(baseDir)
+plot_all_accuracy(threshAcc)
+
+for i in range(2):
+    print(i)
 # get_latency_graph(latencies, latencyNames)
 
 # gen_all_bonsai(st, cl, gt_data)
