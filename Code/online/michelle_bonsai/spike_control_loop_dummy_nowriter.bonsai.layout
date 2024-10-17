@@ -17,7 +17,7 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
+        <XMax>600</XMax>
         <YMin>-5000000</YMin>
         <YMax>4999999.9999999991</YMax>
         <AutoScaleX>true</AutoScaleX>
@@ -46,7 +46,7 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
+        <XMax>450</XMax>
         <YMin>-4000000</YMin>
         <YMax>4000000</YMax>
         <AutoScaleX>true</AutoScaleX>
@@ -75,7 +75,7 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>1</XMax>
+        <XMax>300</XMax>
         <YMin>-4000000</YMin>
         <YMax>3999999.9999999995</YMax>
         <AutoScaleX>true</AutoScaleX>
@@ -102,7 +102,7 @@
     <WindowState>Normal</WindowState>
   </DialogSettings>
   <DialogSettings>
-    <Visible>true</Visible>
+    <Visible>false</Visible>
     <Location>
       <X>837</X>
       <Y>454</Y>
@@ -112,23 +112,6 @@
       <Height>278</Height>
     </Size>
     <WindowState>Normal</WindowState>
-    <VisualizerTypeName>Bonsai.Dsp.Design.SpikeWaveformCollectionVisualizer</VisualizerTypeName>
-    <VisualizerSettings>
-      <SpikeWaveformCollectionVisualizer>
-        <XMin>0</XMin>
-        <XMax>1.2</XMax>
-        <YMin>0</YMin>
-        <YMax>1.2</YMax>
-        <AutoScaleX>true</AutoScaleX>
-        <AutoScaleY>true</AutoScaleY>
-        <SelectedPage>0</SelectedPage>
-        <ChannelsPerPage>16</ChannelsPerPage>
-        <OverlayChannels>false</OverlayChannels>
-        <ChannelOffset>0</ChannelOffset>
-        <HistoryLength>1</HistoryLength>
-        <WaveformBufferLength>20</WaveformBufferLength>
-      </SpikeWaveformCollectionVisualizer>
-    </VisualizerSettings>
   </DialogSettings>
   <DialogSettings>
     <Visible>false</Visible>
@@ -157,9 +140,9 @@
     <VisualizerSettings>
       <SpikeWaveformCollectionVisualizer>
         <XMin>0</XMin>
-        <XMax>1.2</XMax>
+        <XMax>1</XMax>
         <YMin>0</YMin>
-        <YMax>1.2</YMax>
+        <YMax>1.1</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>

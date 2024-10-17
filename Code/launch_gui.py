@@ -14,6 +14,7 @@ def collect_data():
     subprocess.run([bonsaiPath, filePath])
 
 def kilosort(dataLoc):
+    print("kilosort not implemented on the laptop: requires CUDA compatibility")
     pass
     # if dataLoc == None or dataLoc == "":
     #     dataLoc = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_01m00s/"
@@ -26,7 +27,7 @@ def visualise_kilosort(dataLoc):
     template_gui("kilosort4/params.py")
 
 def open_bonsai():
-    filePath = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Code/online/michelle_bonsai/spike_control_loop_dummy_nowriter.bonsai"
+    filePath = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Code/online/michelle_bonsai/spike_control_loop_dummy.bonsai"
     subprocess.run([bonsaiPath, filePath])
 
 root = tk.Tk()

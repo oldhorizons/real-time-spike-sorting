@@ -48,11 +48,11 @@
           <p1:Delay>20</p1:Delay>
           <p1:Length>60</p1:Length>
           <p1:Threshold>
-            <p1:double>-27</p1:double>
-            <p1:double>-36</p1:double>
-            <p1:double>-26</p1:double>
-            <p1:double>-17</p1:double>
-            <p1:double>-73</p1:double>
+            <p1:double>-75</p1:double>
+            <p1:double>-56</p1:double>
+            <p1:double>-78</p1:double>
+            <p1:double>-53</p1:double>
+            <p1:double>-130</p1:double>
           </p1:Threshold>
           <p1:WaveformRefinement>AlignPeaks</p1:WaveformRefinement>
         </Combinator>

@@ -20,6 +20,11 @@ matched_all ([int]): number of spikes in top 20 clusters that match the ground t
 top_inds ([int]): the cluster labels for the matched_all list
 """
 
+globalTrackedUnits = [70, 84, 33, 65, 83]
+globalUnitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'High Activity', 'SLW': 'Low Activity', 'OVL': 'Overlapping'}
+globalColours = {'LGE': 'tab:blue', 'SML': 'tab:orange', 'FST': 'tab:green', 'SLW': 'tab:red', 'OVL': 'tab:purple', 'thresh': 'tab:brown', 'noOvl': 'tab:pink', 'ovl': 'tab:gray', 'ALL': "tab:olive", 'GOOD': 'tab:cyan'}
+# https://matplotlib.org/stable/gallery/color/named_colors.html
+
 # def dtw_similarity(unit1, unit2):
 #     shift, sim = tsm.dtw_path(unit1, unit2)
 #     return sim
@@ -158,13 +163,19 @@ def bwplot_similarity(outputs, numSpikes, amplitudes, method, good_only=False, s
 def linegraph_similarity(outputs, numSpikes, amplitudes, qualities):
     tickLabels = []
     tickValues = []
-    lineLabels = ["all units", "good units only", "fast spiking", "slow spiking", "high amplitude", "low amplitude"]
-    lineValues = {"all units": [], "good units only": [], "fast spiking": [], "slow spiking": [], "high amplitude": [], "low amplitude": []}
+    lineLabels = ["all units", "good units only", "high activity", "low activity", "high amplitude", "low amplitude"]
+    lineValues = {"all units": [], "good units only": [], "high activity": [], "low activity": [], "high amplitude": [], "low amplitude": []}
+    lineColours = {"all units": globalColours["ALL"], 
+                   "good units only": globalColours["GOOD"], 
+                   "high activity": globalColours["FST"], 
+                   "low activity": globalColours["SLW"], 
+                   "high amplitude": globalColours["LGE"], 
+                   "low amplitude": globalColours["SML"]}
     speedThresh = np.median(numSpikes)
     ampThresh = np.median(amplitudes)
 
     for key in outputs.keys():
-        keySims = {"all units": [], "good units only": [], "fast spiking": [], "slow spiking": [], "high amplitude": [], "low amplitude": []}
+        keySims = {"all units": [], "good units only": [], "high activity": [], "low activity": [], "high amplitude": [], "low amplitude": []}
         tickLabel = key.split('_')[-1]
         if tickLabel.startswith("00"):
             tickLabel = tickLabel[3:]
@@ -186,9 +197,9 @@ def linegraph_similarity(outputs, numSpikes, amplitudes, qualities):
                 keySims["good units only"].append(similarity)
             # is the unit fast
             if numSpikes[index] > speedThresh:
-                keySims["fast spiking"].append(similarity)
+                keySims["high activity"].append(similarity)
             else:
-                keySims["slow spiking"].append(similarity)
+                keySims["low activity"].append(similarity)
             #is the unit high amplitude
             if amplitudes[index] > ampThresh:
                 keySims["high amplitude"].append(similarity)
@@ -199,11 +210,11 @@ def linegraph_similarity(outputs, numSpikes, amplitudes, qualities):
             lineValues[key].append(np.mean(keySims[key]))
 
     for key in lineValues.keys():
-        plt.plot(tickValues, lineValues[key], label=key)
+        plt.plot(tickValues, lineValues[key], label=key, color=lineColours[key])
     plt.xlabel("Training Time (s)")
     plt.ylabel("Cosine Similarity")
     plt.legend()
-    plt.title("Cosine Similarity to GT Waveforms vs Training Time")
+    plt.title("Empirical Assessment of Optimal Training Time")
     plt.show()
     # plt.savefig(f"C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/cosine_similarity_averages.png")
     plt.clf()
@@ -405,8 +416,8 @@ def load_all_bonsai(baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841
     return latencies, latencyNames, accuracies, accuracyNames
 
 def plot_bonsai_latency(latencies, latencyNames):
-    categories = ["noOvl", "thresh", "ovl"]
-    categoryRenames = {"noOvl": "Cosine (distance tolerance=0)", "thresh": "Threshold Crossing", "ovl": "Cosine (distance tolerance=300)"}
+    categories = ["thresh", "noOvl", "ovl"]
+    categoryRenames = {"thresh": "Threshold Crossing", "noOvl": "Cosine (no channel overlap)", "ovl": "Cosine (total channel overlap)"}
     nums = [1, 2, 4, 16, 32, 64, 128] #removed 8 because it was a bit screwy aye
     headers = ['chan_select_latency', 'butterworth_latency', 'convert_scale_latency', 'spike_detect_latency', 'compare_templates_latency']
     dat = [[0 for i in range(len(nums))] for j in range(len(categories))]
@@ -425,13 +436,13 @@ def plot_bonsai_latency(latencies, latencyNames):
                             continue
 
     for i, cat in enumerate(categories):
-        plt.plot(nums, dat[i], label=categoryRenames[cat])
+        plt.plot(nums, dat[i], label=categoryRenames[cat], marker='o', color=globalColours[cat])
     plt.legend()
-    plt.xlabel("Units Tracked")
+    plt.xlabel("# Units Tracked")
     plt.ylabel("Total Latency (ms)")
-    plt.title("Pipeline Latency vs Units Tracked")
+    plt.title("Latency Increase with Units Tracked")
     plt.show()
-    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/latency_vs_units.png")
+    # plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/latency_vs_units.png")
     plt.clf()
 
 def get_detected_labels(gtTicks, detectedTicks, offset=0): #offset just in case of data misalignment earlier in the process
@@ -479,7 +490,7 @@ def get_optimal_sim_threshold(detectedTicks, gtTicks, similarities, labels):
                 else:
                     fNeg[i] += 1
             if labels[j] == 'fPos':
-                if similarities[i] >= threshold:
+                if similarities[j] >= threshold:
                     fPos[i] += 1
                 else:
                     tNeg[i] += 1
@@ -493,6 +504,89 @@ def get_optimal_sim_threshold(detectedTicks, gtTicks, similarities, labels):
     #find optimal threshold by F1 score
     maxInd = np.argmax(f1)
     return thresholds[maxInd], tPos[maxInd], fPos[maxInd], fNeg[maxInd]
+
+def get_single_chan_f_vs_similarity_threshold(detectedTicks, gtTicks, similarities, labels, thresholds):
+    #largely the same as get_optimal_sim_threshold EXCEPT NOT WHOAH
+    if gtTicks[-1] > detectedTicks[-1]:
+        gtTicks = gtTicks[:np.where(np.array(gtTicks) > detectedTicks[-1])[0][0]]
+    
+    fPos = [0 for i in thresholds]
+    tPos = [0 for i in thresholds]
+    fNeg = [0 for i in thresholds]
+    tNeg = [0 for i in thresholds]
+    for i, threshold in enumerate(thresholds):
+        for j in range(len(labels)):
+            if labels[j] == 'tPos':
+                if similarities[j] >= threshold:
+                    tPos[i] += 1
+                else:
+                    fNeg[i] += 1
+            if labels[j] == 'fPos':
+                if similarities[j] >= threshold:
+                    fPos[i] += 1
+                else:
+                    tNeg[i] += 1
+    
+    f1 = [0 for i in thresholds]
+    fpRatio = [0 for i in thresholds]
+    ticksDetectedRatio = [0 for i in thresholds]
+    for i in range(len(thresholds)):
+        tp, fp, fn = tPos[i], fPos[i], fNeg[i]
+        denom = tp + 0.5*(fp + fn)
+        f1[i] = 0 if denom == 0 else tp / denom
+        fpRatio[i] = 0 if (fp+tp) == 0 else fp / (fp + tp)
+        ticksDetectedRatio[i] = 0 if (tp + fn) == 0 else tp / (tp + fn)
+    
+    #find optimal threshold by F1 score
+    maxInd = np.argmax(f1)
+    return f1, fpRatio, ticksDetectedRatio
+
+def get_base_f1(labels, length):
+    fp = labels.count("fPos")
+    tp = labels.count("tPos")
+    fn = labels.count("fNeg")
+    denom = tp + 0.5*(fp + fn)
+    f1 = 0 if denom == 0 else tp / denom
+    return [f1 for i in range(length)]
+
+def plot_all_f_vs_similarity_threshold(st, cl, threshAcc):
+    trackedUnits = [70, 84, 33, 65, 83]
+    unitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'High Activity', 'SLW': 'Low Activity', 'OVL': 'Overlapping'}
+    thresholds = list(range(-10, 40, 1))
+    for i in range(len(thresholds)):
+        thresholds[i] /= len(thresholds)
+    gtTicks = extract_gt_ticks(st, cl, trackedUnits) #magic number but it's the only way to make it consistent. would be accuracySims[0]['gtUnits'] but that's got length 6
+    for sim in threshAcc:
+        if sim['name'] != "RT_accuracy_05m00s":
+            continue
+        for i, unit in enumerate(trackedUnits):
+            if sim['gtIdentifiers'][i] == "OVL":
+                continue
+            f1, fpRatio, ticksDetectedRatio = get_single_chan_f_vs_similarity_threshold(sim['ticks'][i], gtTicks[i], sim['sims'][i], sim['labels'][i], thresholds)
+            
+            baseF1 = get_base_f1(sim['labels'][i], len(thresholds))
+            # plt.plot(thresholds, fpRatio, 
+            #          label=globalUnitLabels[sim['gtIdentifiers'][i]], 
+            #          color=globalColours[sim['gtIdentifiers'][i]])
+            # plt.plot(thresholds, ticksDetectedRatio, 
+            #          color=globalColours[sim['gtIdentifiers'][i]], 
+            #          linestyle='dashed')
+            plt.plot(thresholds, f1, 
+                     label=globalUnitLabels[sim['gtIdentifiers'][i]], 
+                     color=globalColours[sim['gtIdentifiers'][i]])
+            plt.plot(thresholds, baseF1, 
+                     color=globalColours[sim['gtIdentifiers'][i]],
+                     linestyle='dashed',
+                     linewidth=0.5)
+    
+    plt.legend()
+    plt.xlabel("Similarity Score Threshold")
+    plt.ylabel("F1 Score")
+    plt.title("Empirical Assessment of Cosine Similarity Threshold")
+    plt.show()
+    # plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/sim_threshold_measure.png")
+    # plt.clf()
+
 
 def get_thresh_accuracies(accuracySims, accuracyNames, st, cl, saveDir = None):
     trackedUnits = [70, 84, 33, 65, 83]
@@ -536,7 +630,7 @@ def load_thresh_accuracies(saveDir):
 def plot_threshold_crossing_accuracy(thresholdSims, unitNums, unitNames):
     f1s = [[] for u in unitNames]
     thresholds = []
-    unitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'Fast Spiking', 'SLW': 'Slow Spiking', 'OVL': 'Overlapping'}
+    unitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'High Activity', 'SLW': 'Low Activity', 'OVL': 'Overlapping'}
     #get the data out
     for t in thresholdSims:
         thresholds.append(t['value'])
@@ -550,19 +644,19 @@ def plot_threshold_crossing_accuracy(thresholdSims, unitNums, unitNames):
     for i in range(len(unitNames)):
         if unitNames[i] == "OVL":
             continue
-        plt.plot(thresholds, f1s[i], label=unitLabels[unitNames[i]])
+        plt.plot(thresholds, f1s[i], label=unitLabels[unitNames[i]], color=globalColours[unitNames[i]])
     plt.legend()
     plt.xlabel("Amplitude Threshold (Channel Percentile)")
     plt.ylabel("Unit F1 Score")
     plt.title("F1 Score vs Amplitude Threshold")
-    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/threshold_crossing_accuracy.png")
+    # plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/threshold_crossing_accuracy.png")
     plt.show()
     plt.clf()
 
 def plot_cos_accuracy(cosineSims, unitNums, unitNames): #TODO add optimal F1 scoring thing idk what it's called my brain is tired
     f1s = [[] for u in unitNames]
     thresholds = []
-    unitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'Fast Spiking', 'SLW': 'Slow Spiking', 'OVL': 'Overlapping'}
+    unitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'High Activity', 'SLW': 'Low Activity', 'OVL': 'Overlapping'}
     #get the data out
     for t in cosineSims:
         thresholds.append(t['value'])
@@ -576,13 +670,13 @@ def plot_cos_accuracy(cosineSims, unitNums, unitNames): #TODO add optimal F1 sco
     for i in range(len(unitNames)):
         if unitNames[i] == "OVL":
             continue
-        plt.plot(thresholds, f1s[i], label=unitLabels[unitNames[i]])
+        plt.plot(thresholds, f1s[i], label=unitLabels[unitNames[i]], color=globalColours[unitNames[i]])
     plt.legend()
     plt.xlabel("Training Time (s)")
     plt.ylabel("Unit F1 Score")
     plt.title("F1 Score vs Training Time")
     plt.show()
-    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/cosine_similarity_accuracy.png")
+    # plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/cosine_similarity_accuracy.png")
     plt.clf()
 
 def plot_all_online_accuracy(threshAcc):
@@ -656,10 +750,11 @@ if __name__ == "__main__":
     
     print("plotting...")
     #kilosort
-    # linegraph_similarity(ksOutputs, numSpikes, ranges, qualities)
+    # linegraph_similarity(ksOutputs, numSpikes, ranges, qualities) #TODO regenerate the data you're putting into this
     # bonsai
     # plot_bonsai_latency(latencies, latencyNames)
-    plot_all_online_accuracy(threshAcc)
+    plot_all_f_vs_similarity_threshold(st, cl, threshAcc)
+    # plot_all_online_accuracy(threshAcc)
 
-    plot_all(ksOutputs, numSpikes, ranges, threshAcc, qualities)
+    # plot_all(ksOutputs, numSpikes, ranges, threshAcc, qualities)
 

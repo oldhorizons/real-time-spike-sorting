@@ -91,20 +91,19 @@ public class CompareTemplates
                     foreach (SpikeTemplate template in templates) {
                         spikeComparer.Templates.Add(template.Waveform);
                         spikeComparer.TemplatesForVis.Add(template);
-                        // similarityMessage.AppendFormat("CH{0} | t{1} tId{2} | tChan {3} | sim {4}\r\n", 
-                        //                                 waveform.ChannelIndex,
-                        //                                 template.Id, 
-                        //                                 template.ChannelIndex,
-                        //                                TemplatesToTrack[template.Id],
-                        //                                 template.SampleIndex, 
-                        //                                 SimilarityMeasure(waveform, template));
-                        similarityMessage.AppendFormat("{0},{1},{2},{3},{4},{5}\r\n", 
+                        similarityMessage.AppendFormat("CH{0} | t{1} tId{2} | tChan {3} | sim {4}\r\n", 
                                                         waveform.ChannelIndex,
                                                         template.Id, 
                                                         template.ChannelIndex,
                                                         template.SampleIndex, 
-                                                        SimilarityMeasure(waveform, template),
-                                                        DateTime.Now.TimeOfDay.TotalMilliseconds);
+                                                        SimilarityMeasure(waveform, template));
+                        // similarityMessage.AppendFormat("{0},{1},{2},{3},{4},{5}\r\n", 
+                        //                                 waveform.ChannelIndex,
+                        //                                 template.Id, 
+                        //                                 template.ChannelIndex,
+                        //                                 template.SampleIndex, 
+                        //                                 SimilarityMeasure(waveform, template),
+                        //                                 DateTime.Now.TimeOfDay.TotalMilliseconds);
                     }
                     spikeComparer.SimilarityMessage = similarityMessage.ToString();
                     observer.OnNext(spikeComparer);

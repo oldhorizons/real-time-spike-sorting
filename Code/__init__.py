@@ -75,4 +75,5 @@ dat = {
         "probe_name": 'neuropixPhase3B1_kilosortChanMap.mat'
 }
 
-k.many_kilosort([dat])
+# k.many_kilosort([dat])
+v.run_ks_bench(dat['data_dir'])

@@ -209,3 +209,17 @@ def show(data, length=2000, filename = None):
         plt.savefig("heatmaps/" + filename + ".png", dpi=500)
     else:
         plt.show()
+
+data_dir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15"
+d = load_data(data_dir)[0]
+d = d.T
+
+def data_fuckery(data, channels=50, channelOffset=0, samples=3000, sampleOffset=0):
+    plottable_data = [[] for i in range(channels)]
+    for i in range(channels):
+        for j in range(samples):
+            plottable_data[i].append(data[i, j] + i*60)
+    for d in plottable_data:
+        plt.plot([i for i in range(samples)], d, color='black', linewidth=0.4)
+    plt.show()
+        
