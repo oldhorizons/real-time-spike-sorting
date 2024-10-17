@@ -32,7 +32,7 @@ gt_dir = data_dir
 # })
 
 
-new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = 30000*60*10, offset = 30000*60*15)
+# new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = 30000*60*10, offset = 30000*60*15)
 
 # for length in [30000*60*2, 30000*60*3, 30000*60*4]:
 #     new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = length)
@@ -64,3 +64,15 @@ new_dir = c.crop_data(data_dir = data_dir, gt_dir = gt_dir, num_samples = 30000*
 # for dir in os.listdir("E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24"):
 #     print(dir)
 #     v.run_ks_bench("E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24/" + dir)
+
+
+
+
+dat = {
+        "data_name": "ZFM_VALIDATION_10MIN",
+        "data_dir": "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15",
+        "n_channels": 385,
+        "probe_name": 'neuropixPhase3B1_kilosortChanMap.mat'
+}
+
+k.many_kilosort([dat])

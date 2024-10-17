@@ -17,7 +17,7 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>600</XMax>
+        <XMax>1</XMax>
         <YMin>-5000000</YMin>
         <YMax>4999999.9999999991</YMax>
         <AutoScaleX>true</AutoScaleX>
@@ -46,7 +46,7 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>450</XMax>
+        <XMax>1</XMax>
         <YMin>-4000000</YMin>
         <YMax>4000000</YMax>
         <AutoScaleX>true</AutoScaleX>
@@ -75,7 +75,7 @@
     <VisualizerSettings>
       <MatVisualizer>
         <XMin>0</XMin>
-        <XMax>300</XMax>
+        <XMax>1</XMax>
         <YMin>-4000000</YMin>
         <YMax>3999999.9999999995</YMax>
         <AutoScaleX>true</AutoScaleX>
@@ -116,9 +116,9 @@
     <VisualizerSettings>
       <SpikeWaveformCollectionVisualizer>
         <XMin>0</XMin>
-        <XMax>60</XMax>
-        <YMin>-3</YMin>
-        <YMax>3</YMax>
+        <XMax>1.2</XMax>
+        <YMin>0</YMin>
+        <YMax>1.2</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>
@@ -157,9 +157,9 @@
     <VisualizerSettings>
       <SpikeWaveformCollectionVisualizer>
         <XMin>0</XMin>
-        <XMax>61</XMax>
-        <YMin>-10</YMin>
-        <YMax>5</YMax>
+        <XMax>1.2</XMax>
+        <YMin>0</YMin>
+        <YMax>1.2</YMax>
         <AutoScaleX>true</AutoScaleX>
         <AutoScaleY>true</AutoScaleY>
         <SelectedPage>0</SelectedPage>

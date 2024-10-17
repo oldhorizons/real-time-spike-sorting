@@ -17,8 +17,11 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="dsp:SelectChannels">
           <dsp:Channels>
-            <dsp:int>42</dsp:int>
-            <dsp:int>70</dsp:int>
+            <dsp:int>21</dsp:int>
+            <dsp:int>77</dsp:int>
+            <dsp:int>10</dsp:int>
+            <dsp:int>173</dsp:int>
+            <dsp:int>22</dsp:int>
           </dsp:Channels>
         </Combinator>
       </Expression>
@@ -52,13 +55,16 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:CompareTemplates">
           <p1:comparisonMethod>Cosine</p1:comparisonMethod>
-          <p1:SourcePath>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_05m00s/kilosort4/templates</p1:SourcePath>
+          <p1:SourcePathStart>C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15</p1:SourcePathStart>
           <p1:TemplatesToTrack>
-            <p1:int>99</p1:int>
-            <p1:int>130</p1:int>
+            <p1:int>67</p1:int>
+            <p1:int>160</p1:int>
+            <p1:int>31</p1:int>
+            <p1:int>328</p1:int>
+            <p1:int>53</p1:int>
           </p1:TemplatesToTrack>
           <p1:VisualisationOutput>true</p1:VisualisationOutput>
-          <p1:DistanceThreshold>0</p1:DistanceThreshold>
+          <p1:DistanceThreshold>300</p1:DistanceThreshold>
           <p1:SimilarityThreshold>0</p1:SimilarityThreshold>
         </Combinator>
       </Expression>

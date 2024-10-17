@@ -83,7 +83,7 @@ def scatter_1d(wf):
     plt.plot(wf, list(range(len(wf))))
     plt.show()
 
-def plot_fmaxes():
+def bwplot_fmaxes(outputs):
     labels = []
     plots = []
     for key in outputs.keys():
@@ -103,11 +103,11 @@ def plot_fmaxes():
 speed takes values slow / fast / all
 amps takes values small / large / all
 """
-def plot_similarity(method, good_only=False, speed="all", amps="all"):
+def bwplot_similarity(outputs, numSpikes, amplitudes, method, good_only=False, speed="all", amps="all"):
     labels = []
     sims = []
     speedThresh = np.median(numSpikes)
-    ampThresh = np.median(ranges)
+    ampThresh = np.median(amplitudes)
     for key in outputs.keys():
         keySims = []
         labels.append(key.split('_')[-1])
@@ -115,9 +115,9 @@ def plot_similarity(method, good_only=False, speed="all", amps="all"):
             # skip some if needed
             if (good_only == True and quality[index] == "mua"):
                 continue
-            if (speed == 'slow' and numSpikes[index] > speedThresh) or (speed == 'fast' and total_spikes[index] < speedThresh):
+            if (speed == 'slow' and numSpikes[index] > speedThresh) or (speed == 'fast' and numSpikes[index] < speedThresh):
                 continue
-            if (amps == 'small' and ranges[index] > ampThresh) or (amps == 'large' and amplitudes[index] < ampThresh):
+            if (amps == 'small' and amplitudes[index] > ampThresh) or (amps == 'large' and amplitudes[index] < ampThresh):
                 continue
             # only checks cosine similarity of best_ind
             ks_wfs = np.load(baseDir + "/" + key + "/kilosort4/templates.npy")
@@ -155,7 +155,60 @@ def plot_similarity(method, good_only=False, speed="all", amps="all"):
     plt.savefig(f"C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/{method}_sim_boxplot{filenameQualifier}.png")
     plt.clf()
 
-def get_numspikes_spikeorder():
+def linegraph_similarity(outputs, numSpikes, amplitudes, qualities):
+    tickLabels = []
+    tickValues = []
+    lineLabels = ["all units", "good units only", "fast spiking", "slow spiking", "high amplitude", "low amplitude"]
+    lineValues = {"all units": [], "good units only": [], "fast spiking": [], "slow spiking": [], "high amplitude": [], "low amplitude": []}
+    speedThresh = np.median(numSpikes)
+    ampThresh = np.median(amplitudes)
+
+    for key in outputs.keys():
+        keySims = {"all units": [], "good units only": [], "fast spiking": [], "slow spiking": [], "high amplitude": [], "low amplitude": []}
+        tickLabel = key.split('_')[-1]
+        if tickLabel.startswith("00"):
+            tickLabel = tickLabel[3:]
+            value = int(tickLabel[:2])
+        else:
+            tickLabel = tickLabel[:3]
+            value = int(tickLabel[:2]) * 60
+        tickLabels.append(tickLabel)
+        tickValues.append(value)
+
+        for index, gt_unit in enumerate(wfs):
+            ks_wfs = np.load(baseDir + "/" + key + "/kilosort4/templates.npy")
+            ks_unit = ks_wfs[outputs[key]["best_ind"][index]]
+            ks_unit, gt_unit = align_templates_single_chan(ks_unit, gt_unit)
+            similarity = np.dot(ks_unit, gt_unit)/(np.linalg.norm(ks_unit) * np.linalg.norm(gt_unit))
+            keySims["all units"].append(similarity)
+            # is the unit good
+            if qualities[index] != "mua":
+                keySims["good units only"].append(similarity)
+            # is the unit fast
+            if numSpikes[index] > speedThresh:
+                keySims["fast spiking"].append(similarity)
+            else:
+                keySims["slow spiking"].append(similarity)
+            #is the unit high amplitude
+            if amplitudes[index] > ampThresh:
+                keySims["high amplitude"].append(similarity)
+            else:
+                keySims["low amplitude"].append(similarity)
+            
+        for key in lineValues.keys():
+            lineValues[key].append(np.mean(keySims[key]))
+
+    for key in lineValues.keys():
+        plt.plot(tickValues, lineValues[key], label=key)
+    plt.xlabel("Training Time (s)")
+    plt.ylabel("Cosine Similarity")
+    plt.legend()
+    plt.title("Cosine Similarity to GT Waveforms vs Training Time")
+    plt.show()
+    # plt.savefig(f"C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/cosine_similarity_averages.png")
+    plt.clf()
+
+def get_numspikes_spikeorder(clFull):
     numSpikes = [0] * 100
     for cluster in clFull:
         numSpikes[cluster] += 1
@@ -164,7 +217,7 @@ def get_numspikes_spikeorder():
     spikeOrder = [numSpikes.index(i) for i in sorted]
     return numSpikes, spikeOrder
 
-def get_ranges_rangeorder():
+def get_ranges_rangeorder(wfsFull):
     ranges = []
     for waveform in wfsFull:
         maxIndex = dimensional_max(waveform)
@@ -177,7 +230,7 @@ def get_ranges_rangeorder():
     rangeOrder = [ranges.index(i) for i in sorted]
     return ranges, rangeOrder
 
-def get_quality(filename = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_45m00s/kilosort4/cluster_KSlabel.tsv"):
+def get_quality(outputs, filename = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_45m00s/kilosort4/cluster_KSlabel.tsv"):
     labels = []
     with open(filename, 'r') as f:
         for line in f:
@@ -188,14 +241,14 @@ def get_quality(filename = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Da
                 continue
     return labels
 
-def get_outputs(baseDir="C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"):
+def get_ks_outputs(baseDir="C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"):
     outputs = dict()
     dirList = os.listdir(baseDir)
     for d in dirList:
         if "ZFM" in d:
-            print(d)
             with open(baseDir + "/" + d + "/benchmark.pkl", 'rb') as f:
                 outputs[d] = pkl.load(f)
+    return outputs
 
 #qualifier could be threshpc, latency, accuracy, or ""
 def get_bonsai_outputs(baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs", qualifier = ""):
@@ -338,7 +391,6 @@ def load_all_bonsai(baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841
     accuracies = []
     accuracyNames = []
     for directory in os.listdir(baseDir):
-        print(directory)
         if "latency" in directory:
             latencyNames.append(directory)
             latencies.append(pd.read_csv(f"{baseDir}/{directory}/07_full_latency.csv"))
@@ -352,7 +404,7 @@ def load_all_bonsai(baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841
                 accuracyNames.append(directory)
     return latencies, latencyNames, accuracies, accuracyNames
 
-def get_latency_graph(latencies, latencyNames):
+def plot_bonsai_latency(latencies, latencyNames):
     categories = ["noOvl", "thresh", "ovl"]
     categoryRenames = {"noOvl": "Cosine (distance tolerance=0)", "thresh": "Threshold Crossing", "ovl": "Cosine (distance tolerance=300)"}
     nums = [1, 2, 4, 16, 32, 64, 128] #removed 8 because it was a bit screwy aye
@@ -366,8 +418,8 @@ def get_latency_graph(latencies, latencyNames):
                     for h in headers:
                         try:
                             desc = latencies[i].describe()[h]
-                            if desc['count'] != 60000.0:
-                                print(f"{name} {h}: m{desc['mean']} c{desc['count']}")
+                            # if desc['count'] != 60000.0:
+                            #     print(f"{name} {h}: m{desc['mean']} c{desc['count']}")
                             dat[k][j] += desc["mean"]
                         except:
                             continue
@@ -378,6 +430,7 @@ def get_latency_graph(latencies, latencyNames):
     plt.xlabel("Units Tracked")
     plt.ylabel("Total Latency (ms)")
     plt.title("Pipeline Latency vs Units Tracked")
+    plt.show()
     plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/latency_vs_units.png")
     plt.clf()
 
@@ -445,7 +498,6 @@ def get_thresh_accuracies(accuracySims, accuracyNames, st, cl, saveDir = None):
     trackedUnits = [70, 84, 33, 65, 83]
     gtTicks = extract_gt_ticks(st, cl, trackedUnits) #magic number but it's the only way to make it consistent. would be accuracySims[0]['gtUnits'] but that's got length 6
     for i, name in enumerate(accuracyNames):
-        print(f"getting thresh: {name}")
         simulation = accuracySims[i]
         simulation['name'] = name
         simulation['tPos'] = []
@@ -484,6 +536,7 @@ def load_thresh_accuracies(saveDir):
 def plot_threshold_crossing_accuracy(thresholdSims, unitNums, unitNames):
     f1s = [[] for u in unitNames]
     thresholds = []
+    unitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'Fast Spiking', 'SLW': 'Slow Spiking', 'OVL': 'Overlapping'}
     #get the data out
     for t in thresholdSims:
         thresholds.append(t['value'])
@@ -495,7 +548,9 @@ def plot_threshold_crossing_accuracy(thresholdSims, unitNums, unitNames):
     
     #plot the data
     for i in range(len(unitNames)):
-        plt.plot(thresholds, f1s[i], label=unitNames[i])
+        if unitNames[i] == "OVL":
+            continue
+        plt.plot(thresholds, f1s[i], label=unitLabels[unitNames[i]])
     plt.legend()
     plt.xlabel("Amplitude Threshold (Channel Percentile)")
     plt.ylabel("Unit F1 Score")
@@ -507,6 +562,7 @@ def plot_threshold_crossing_accuracy(thresholdSims, unitNums, unitNames):
 def plot_cos_accuracy(cosineSims, unitNums, unitNames): #TODO add optimal F1 scoring thing idk what it's called my brain is tired
     f1s = [[] for u in unitNames]
     thresholds = []
+    unitLabels = {'LGE': 'High Amplitude', 'SML': 'Low Amplitude', 'FST': 'Fast Spiking', 'SLW': 'Slow Spiking', 'OVL': 'Overlapping'}
     #get the data out
     for t in cosineSims:
         thresholds.append(t['value'])
@@ -515,19 +571,21 @@ def plot_cos_accuracy(cosineSims, unitNums, unitNames): #TODO add optimal F1 sco
             denom = tp + 0.5*(fp + fn)
             f1 = 0 if denom == 0 else tp / denom
             f1s[i].append(f1)
-    
+
     #plot the data
     for i in range(len(unitNames)):
-        plt.plot(thresholds, f1s[i], label=unitNames[i])
+        if unitNames[i] == "OVL":
+            continue
+        plt.plot(thresholds, f1s[i], label=unitLabels[unitNames[i]])
     plt.legend()
     plt.xlabel("Training Time (s)")
     plt.ylabel("Unit F1 Score")
-    plt.title("F1 Score vs Amplitude Threshold")
-    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/cosine_similarity_accuracy.png")
+    plt.title("F1 Score vs Training Time")
     plt.show()
+    plt.savefig("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Outputs/visualisations/cosine_similarity_accuracy.png")
     plt.clf()
 
-def plot_all_accuracy(threshAcc):
+def plot_all_online_accuracy(threshAcc):
     thresholdInfo = []
     cosInfo = []
     units = threshAcc[0]['gtUnits']
@@ -556,54 +614,52 @@ def plot_all_accuracy(threshAcc):
     plot_threshold_crossing_accuracy(thresholdInfo, units, unitNames)
     plot_cos_accuracy(cosInfo, units, unitNames)
 
-def plot_all(threshAcc):
-    print("PLOTTING FMAX")
-    plot_fmaxes()
-    print("PLOTTING DTW SIM")
-    plot_similarity("DTW")
-    print("PLOTTING COSINE SIM")
-    plot_similarity("Cosine")
-    for s in ["slow", "fast", "all"]:
-        for a in ["small", "large", "all"]:
-            for g in [True, False]:
-                for m in ["Cosine", "DTW"]:
-                    print(m + str(g) + a + s)
-                    plot_similarity(m, g, s, a)
+def plot_all(ksOutputs, numSpikes, ranges, threshAcc, qualities):
+    # print("PLOTTING FMAX")
+    # bwplot_fmaxes(ksOutputs)
+    # print("PLOTTING DTW SIM")
+    # plot_similarity(ksOutputs, "DTW")
+    # print("PLOTTING COSINE SIM")
+    # plot_similarity(ksOutputs, "Cosine")
+    linegraph_similarity(ksOutputs, numSpikes, ranges, qualities)
+    # for s in ["slow", "fast", "all"]:
+    #     for a in ["small", "large", "all"]:
+    #         for g in [True, False]:
+    #             for m in ["cosine"]:
+    #                 print(m + str(g) + a + s)
+                    # bwplot_similarity(ksOutputs, numSpikes, ranges, m, g, s, a)
     print("PLOTTING ACCURACY")
-    plot_all_accuracy(threshAcc)
+    plot_all_online_accuracy(threshAcc)
 
-# baseDir = "E:/EPHYS_DATA/sim_hybrid_ZFM-01936_2021-01-24"
-baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"
-dataDir = 'C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15'
-outputsDir = ""
+if __name__ == "__main__":
+    baseDir = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data"
+    dataDir = 'C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/VALIDATION_10MIN_FROM_15'
+    outputsDir = "" #not used
 
+    print("loading ks outputs...")
+    ksOutputs = get_ks_outputs()
 
-outputs = get_outputs()
-st,cl,wfs,cb,ci = load_gt(dataDir)
+    print("loading ground truths...")
+    st,cl,wfs,cb,ci = load_gt(dataDir)
+    stFull,clFull,wfsFull,cbFull,ciFull = load_gt()
 
-stFull,clFull,wfsFull,cbFull,ciFull = load_gt()
+    print("loading errata...")
+    numSpikes, spikeOrder = get_numspikes_spikeorder(clFull)
+    ranges, rangeOrder = get_ranges_rangeorder(wfsFull)
+    qualities = get_quality(ksOutputs)
+    gt_data = cd.load_data(dataDir)[0]
 
-numSpikes, spikeOrder = get_numspikes_spikeorder()
-ranges, rangeOrder = get_ranges_rangeorder()
-quality = get_quality()
-gt_data = cd.load_data(dataDir)[0]
+    print("loading bonsai outputs...")
+    latencies, latencyNames, accuracies, accuracyNames = load_all_bonsai(baseDir + "/Bonsai_Outputs")
+    # threshAcc = get_thresh_accuracies(accuracies, accuracyNames, st, cl, saveDir = baseDir)
+    threshAcc = load_thresh_accuracies(baseDir)
+    
+    print("plotting...")
+    #kilosort
+    # linegraph_similarity(ksOutputs, numSpikes, ranges, qualities)
+    # bonsai
+    # plot_bonsai_latency(latencies, latencyNames)
+    plot_all_online_accuracy(threshAcc)
 
-latencies, latencyNames, accuracies, accuracyNames = load_all_bonsai()
-# threshAcc = get_thresh_accuracies(accuracies, accuracyNames, st, cl, saveDir = baseDir)
-threshAcc = load_thresh_accuracies(baseDir)
-plot_all_accuracy(threshAcc)
+    plot_all(ksOutputs, numSpikes, ranges, threshAcc, qualities)
 
-for i in range(2):
-    print(i)
-# get_latency_graph(latencies, latencyNames)
-
-# gen_all_bonsai(st, cl, gt_data)
-
-
-# dir2 = os.listdir("C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/Bonsai_Outputs")[0]
-# f = open(f"{baseDir}/Bonsai_Outputs/{dir2}/07_full_accuracy.npz", 'rb')
-# a = np.load(f, allow_pickle=True)
-# names = a.files
-
-
-# plot_all()

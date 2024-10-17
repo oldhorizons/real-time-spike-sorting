@@ -1,48 +1,67 @@
-# import do_kilosort as k
-# import os
-# import shared.config as config
-# import numpy as np
-# import sys
-# from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QProgressBar, QPushButton, QLabel
-# from PyQt5.QtGui import QPalette, QColor
+import subprocess
+# import do_kilosort as dk
+import os
+import shared.config as config
+import numpy as np
+import sys
+import tkinter as tk
+from phy.apps.template import template_gui
 
-# class MainWindow(QMainWindow):
-#     def __init__(self):
-#         super(MainWindow, self).__init__()
-#         self.setWindowTitle("Spike Sorting Control Loop GUI")
-        
-#         #set up layouts
-#         self.setAutoFillBackground(True)
-#         HorizontalLayout = QHBoxLayout()
-        
-#         SortingLayout = QVBoxLayout()
-#         TemplateChoosingLayout = QVBoxLayout()
-#         BonsaiLayout = QVBoxLayout()
+bonsaiPath = "C:/Users/miche/AppData/Local/Bonsai/Bonsai.exe"
 
-#     def make_acquisition_layout(self):
-#         layout = QVBoxLayout()
-#         label = QLabel("Data Acquisition")
-#         font = label.font()
-#         font.setPointSize(12)
-#         label.setFont(font)
-#         filepathEntry = QLineEdit()
-#         filepathEntry.setPlaceholderText()
-#         filepathEntry.setPlaceholderText("acquisition filepath")
+def collect_data():
+    filePath = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Code/online/david_bonsai/workflows/Ephy Full Rig Matrix Merge Test.bonsai"
+    subprocess.run([bonsaiPath, filePath])
 
-#         button = QPushButton("Open Bonsai")
-#         button.clicked.connect(self.launch_bonsai_acquisition())
-#         return layout
+def kilosort(dataLoc):
+    pass
+    # if dataLoc == None or dataLoc == "":
+    #     dataLoc = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_01m00s/"
+    # dk.do_kilosort(dataLoc, 385, 'neuropixPhase3B1_kilosortChanMap.mat')
     
-#     def launch_bonsai_acquisition(self):
+def visualise_kilosort(dataLoc):
+    if dataLoc == None or dataLoc == "":
+        dataLoc = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Data/sim_hybrid_ZFM_05m00s/"
+    os.chdir(dataLoc)
+    template_gui("kilosort4/params.py")
 
+def open_bonsai():
+    filePath = "C:/Users/miche/OneDrive/Documents/01 Uni/REIT4841/Code/online/michelle_bonsai/spike_control_loop_dummy_nowriter.bonsai"
+    subprocess.run([bonsaiPath, filePath])
 
+root = tk.Tk()
+root.title("Spike Sort GUI")
+frame = tk.Frame(root)
+frame.pack(pady=20, padx=20)
 
+for i in range(4):
+    section = tk.Frame(frame)
+    section.grid(row=0, column=i, padx=10)
+    match i:
+        case 0: 
+            button=tk.Button(section, text="Collect Data", command=lambda: collect_data())
+        case 1: 
+            text_var = tk.StringVar()
+            text_var.set("Binary File Location:")
+            label = tk.Label(section, textvariable=text_var)
+            entry = tk.Entry(section, width=50)
+            label.pack(pady=5)
+            entry.pack(pady=5)
+            button=tk.Button(section, text="Run Kilosort", command=lambda: kilosort(entry.get()))
+        case 2: 
+            text_var = tk.StringVar()
+            text_var.set("Data Outputs Location")
+            label = tk.Label(section, textvariable=text_var)
+            entry = tk.Entry(section, width=50)
+            label.pack(pady=5)
+            entry.pack(pady=5)
+            button=tk.Button(section, text="Open Output", command=lambda: visualise_kilosort(entry.get()))
+        case 3: 
+            button=tk.Button(section, text="Run Realtime", command=lambda: open_bonsai())
+    button.pack()
 
+root.mainloop()
 
+if __name__ == "__main__":
+    root.mainloop()
 
-# app = QApplication(sys.argv)
-
-# window = MainWindow()
-# window.show()
-
-# app.exec()

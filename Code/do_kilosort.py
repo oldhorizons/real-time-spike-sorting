@@ -50,4 +50,5 @@ def many_kilosort(dataDirs):
                 np.savetxt(data_dir + f'/kilosort4/templates/t{i}.csv', t, delimiter=",")
         except Exception as e:
             log.exception(e)
+            print(e)
  
